@@ -496,9 +496,17 @@ inline void Battleground::_ProcessJoin(uint32 diff)
                     player->RemoveAurasDueToSpell(SPELL_PREPARATION);
                     player->ResetAllPowers();
                 }
+
+            uint32 minlevel = GetMinLevel();
+            uint32 maxlevel = GetMaxLevel();
+
+            // replace hardcoded max level by player max level for nice output
+            if (maxlevel > sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL))
+                maxlevel = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
+
             // Announce BG starting
             if (sWorld->getBoolConfig(CONFIG_BATTLEGROUND_QUEUE_ANNOUNCER_ENABLE))
-                sWorld->SendWorldText(LANG_BG_STARTED_ANNOUNCE_WORLD, GetName().c_str(), GetMinLevel(), GetMaxLevel());
+                sWorld->SendWorldText(LANG_BG_STARTED_ANNOUNCE_WORLD, GetName().c_str(), minlevel, maxlevel);
         }
     }
 }
