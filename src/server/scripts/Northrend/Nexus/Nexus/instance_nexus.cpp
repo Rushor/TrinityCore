@@ -189,7 +189,114 @@ class instance_nexus : public InstanceMapScript
         }
 };
 
+enum eFrayer
+{
+    SPELL_SUMMON_SEED_POD = 52796,
+    SPELL_SEED_POD = 48082,
+    SPELL_AURA_OF_REGENERATION = 52067,
+    SPELL_CRYSTAL_BLOOM = 48058,
+    SPELL_ENSNARE = 48053
+};
+
+class npc_crystalline_frayer : public CreatureScript
+{
+    public:
+        npc_crystalline_frayer() : CreatureScript("npc_crystalline_frayer") { }
+    
+        struct npc_crystalline_frayerAI : public ScriptedAI
+        {
+            npc_crystalline_frayerAI(Creature* creature) : ScriptedAI(creature) { }
+    
+            void Reset() override
+            {
+                restoreTimer = 0;
+                abilityTimer1 = 0;
+                abilityTimer2 = 30000;
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            }
+
+            void JustEngagedWith(Unit* /*who*/) override
+            {
+                _allowDeath = me->GetInstanceScript()->GetBossState(DATA_ORMOROK) == DONE;
+            }
+    
+            void EnterEvadeMode(EvadeReason /*why*/) override
+            {
+                if (me->CanRegenerateHealth())
+                    ScriptedAI::EnterEvadeMode();
+            }
+    
+            void DamageTaken(Unit* /*attacker*/, uint32& damage)
+            {
+                if (damage >= me->GetHealth())
+                {
+                    if (!_allowDeath)
+                    {
+                        me->RemoveAllAuras();
+                        me->CombatStop(true);
+                        damage = 0;
+    
+                        me->SetReactState(REACT_PASSIVE);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        me->SetRegenerateHealth(false);
+                        me->CastSpell(me, SPELL_SUMMON_SEED_POD, true);
+                        me->CastSpell(me, SPELL_SEED_POD, true);
+                        me->CastSpell(me, SPELL_AURA_OF_REGENERATION, false);
+                        restoreTimer = 1;
+                    }
+                }
+            }
+    
+            void UpdateAI(uint32 diff) override
+            {
+                if (restoreTimer)
+                {
+                    restoreTimer += diff;
+                    if (restoreTimer >= 90 * IN_MILLISECONDS)
+                    {
+                        Talk(0);
+                        me->SetRegenerateHealth(true);
+                        restoreTimer = 0;
+                        me->SetReactState(REACT_AGGRESSIVE);
+                        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                    }
+                    return;
+                }
+    
+                if (!UpdateVictim())
+                    return;
+    
+                abilityTimer1 += diff;
+                abilityTimer2 += diff;
+    
+                if (abilityTimer1 >= 5 * IN_MILLISECONDS)
+                {
+                    me->CastSpell(me->GetVictim(), SPELL_ENSNARE, false);
+                    abilityTimer1 = 0;
+                }
+    
+                if (abilityTimer2 >= 30 * IN_MILLISECONDS)
+                {
+                    me->CastSpell(me->GetVictim(), SPELL_CRYSTAL_BLOOM, false);
+                    abilityTimer2 = 0;
+                }
+            }
+    
+        private:
+            bool _allowDeath;
+            uint32 restoreTimer;
+            uint32 abilityTimer1;
+            uint32 abilityTimer2;
+        };
+
+        CreatureAI* GetAI(Creature* creature) const override
+        {
+            return new npc_crystalline_frayerAI(creature);
+        }
+};
+
 void AddSC_instance_nexus()
 {
     new instance_nexus();
+    new npc_crystalline_frayer();
 }
