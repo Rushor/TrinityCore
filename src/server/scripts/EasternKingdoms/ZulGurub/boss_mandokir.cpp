@@ -52,7 +52,6 @@ enum Spells
 enum Events
 {
     EVENT_CHECK_SPEAKER       = 1,
-    EVENT_CHECK_START,
     EVENT_STARTED,
     EVENT_OVERPOWER,
     EVENT_MORTAL_STRIKE,
@@ -66,7 +65,8 @@ enum Misc
     MODEL_OHGAN_MOUNT         = 15271,
     PATH_MANDOKIR             = 492861,
     POINT_MANDOKIR_END        = 24,
-    CHAINED_SPIRT_COUNT       = 20
+    CHAINED_SPIRT_COUNT       = 20,
+    ACTION_START_ENCOUNTER    = 1
 };
 
 Position const PosSummonChainedSpirits[CHAINED_SPIRT_COUNT] =
@@ -99,6 +99,8 @@ Position const PosMandokir[2] =
     { -12197.86f, -1949.392f, 130.2745f, 0.0f }
 };
 
+Position const vilebranch_speaker_loc = { -12196.64f, -1948.439f, 130.2961f, 0.713138f };
+
 class boss_mandokir : public CreatureScript
 {
     public:
@@ -114,22 +116,27 @@ class boss_mandokir : public CreatureScript
             void Initialize()
             {
                 _killCount = 0;
+                if (!me->FindNearestCreature(NPC_VILEBRANCH_SPEAKER, 500.0f))
+                    me->SummonCreature(NPC_VILEBRANCH_SPEAKER, vilebranch_speaker_loc);
             }
 
             void Reset() override
             {
+                summons.DespawnAll();
+                me->Mount(MODEL_OHGAN_MOUNT);
+                instance->SetBossState(DATA_MANDOKIR, NOT_STARTED);
+                me->RemoveAura(SPELL_FRENZY);
+                events.Reset();
+                me->SetImmuneToAll(true);
+                me->GetMotionMaster()->MovePoint(0, PosMandokir[0]);
+                if (!me->FindNearestCreature(NPC_VILEBRANCH_SPEAKER, 500.0f))
+                    me->SummonCreature(NPC_VILEBRANCH_SPEAKER, vilebranch_speaker_loc);
+
                 if (me->GetPositionZ() > 140.0f)
                 {
                     _Reset();
-                    Initialize();
-                    me->SetImmuneToAll(true);
-                    events.ScheduleEvent(EVENT_CHECK_START, 1s);
-                    if (Creature* speaker = instance->GetCreature(DATA_VILEBRANCH_SPEAKER))
-                        if (!speaker->IsAlive())
-                            speaker->Respawn(true);
+                    Initialize();            
                 }
-                summons.DespawnAll();
-                me->Mount(MODEL_OHGAN_MOUNT);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -137,11 +144,6 @@ class boss_mandokir : public CreatureScript
                 summons.DespawnEntry(NPC_CHAINED_SPIRT);
                 instance->SetBossState(DATA_MANDOKIR, DONE);
                 instance->SaveToDB();
-            }
-
-            void JustReachedHome() override
-            {
-                me->SetImmuneToAll(false);
             }
 
             void JustEngagedWith(Unit* /*who*/) override
@@ -152,7 +154,6 @@ class boss_mandokir : public CreatureScript
                 events.ScheduleEvent(EVENT_WHIRLWIND, 24s, 30s);
                 events.ScheduleEvent(EVENT_WATCH_PLAYER, 13s, 15s);
                 events.ScheduleEvent(EVENT_CHARGE_PLAYER, 33s, 38s);
-                me->SetHomePosition(me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), me->GetOrientation());
                 Talk(SAY_AGGRO);
                 me->Dismount();
 
@@ -190,17 +191,16 @@ class boss_mandokir : public CreatureScript
                 }
             }
 
-            void MovementInform(uint32 type, uint32 id) override
+            void DoAction(int32 action) override
             {
-                if (type == WAYPOINT_MOTION_TYPE)
+                switch (action)
                 {
-                    me->SetWalk(false);
-                    if (id == POINT_MANDOKIR_END)
-                    {
-                        me->SetHomePosition(PosMandokir[1]);
-                        me->GetMotionMaster()->MoveTargetedHome();
-                        instance->SetBossState(DATA_MANDOKIR, NOT_STARTED);
-                    }
+                    case ACTION_START_ENCOUNTER:
+                        me->GetMotionMaster()->MovePoint(0, PosMandokir[1]);
+                        events.ScheduleEvent(EVENT_STARTED, 6s);
+                        break;
+                    default:
+                        break;
                 }
             }
 
@@ -210,28 +210,15 @@ class boss_mandokir : public CreatureScript
 
                 if (!UpdateVictim())
                 {
-                    if (instance->GetBossState(DATA_MANDOKIR) == NOT_STARTED || instance->GetBossState(DATA_MANDOKIR) == SPECIAL)
+                    while (uint32 eventId = events.ExecuteEvent())
                     {
-                        while (uint32 eventId = events.ExecuteEvent())
+                        switch (eventId)
                         {
-                            switch (eventId)
-                            {
-                                case EVENT_CHECK_START:
-                                    if (instance->GetBossState(DATA_MANDOKIR) == SPECIAL)
-                                    {
-                                        me->GetMotionMaster()->MovePoint(0, PosMandokir[1]);
-                                        events.ScheduleEvent(EVENT_STARTED, 6s);
-                                    }
-                                    else
-                                        events.ScheduleEvent(EVENT_CHECK_START, 1s);
-                                    break;
-                                case EVENT_STARTED:
-                                    me->SetImmuneToAll(false);
-                                    me->GetMotionMaster()->MovePath(PATH_MANDOKIR, false);
-                                    break;
-                                default:
-                                    break;
-                            }
+                            case EVENT_STARTED:
+                                me->SetImmuneToAll(false);
+                                break;
+                            default:
+                                break;
                         }
                     }
                     return;
@@ -376,7 +363,8 @@ class npc_vilebranch_speaker : public CreatureScript
 
             void JustDied(Unit* /*killer*/) override
             {
-                _instance->SetBossState(DATA_MANDOKIR, SPECIAL);
+                if (Creature* mandokir = me->FindNearestCreature(NPC_MANDOKIR, 500.0f))
+                    mandokir->AI()->DoAction(ACTION_START_ENCOUNTER);
             }
 
             void UpdateAI(uint32 diff) override
