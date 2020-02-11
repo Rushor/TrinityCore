@@ -226,8 +226,20 @@ public:
             case TYPE_RIFT:
                 if (data == SPECIAL)
                 {
-                    if (mRiftPortalCount < 7)
-                        ScheduleEventNextPortal(5000);
+                    if (mRiftPortalCount == 6)
+                        EnableBreak = true;
+                    if (mRiftPortalCount == 12)
+                        EnableBreak = true;
+                    if (mRiftPortalCount < 18)
+                    {
+                        if (!EnableBreak)
+                            ScheduleEventNextPortal(5 * IN_MILLISECONDS);
+                        else
+                        {
+                            EnableBreak = false;
+                            ScheduleEventNextPortal(60 * IN_MILLISECONDS);
+                        }
+                    }
                 }
                 else
                     m_auiEncounter[1] = data;
@@ -346,6 +358,7 @@ public:
 
         protected:
             EventMap Events;
+            bool EnableBreak;
     };
 
 };
