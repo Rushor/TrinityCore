@@ -86,7 +86,7 @@ class boss_buru : public CreatureScript
 
             void JustEngagedWith(Unit* who) override
             {
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
                 Talk(EMOTE_TARGET, who);
                 DoCast(me, SPELL_THORNS);
 

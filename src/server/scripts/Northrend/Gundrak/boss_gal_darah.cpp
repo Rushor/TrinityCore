@@ -117,9 +117,9 @@ class boss_gal_darah : public CreatureScript
                 _DespawnAtEvade();
             }
 
-            void JustEngagedWith(Unit* who) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 me->InterruptNonMeleeSpells(false);
                 SetPhase(PHASE_TROLL);

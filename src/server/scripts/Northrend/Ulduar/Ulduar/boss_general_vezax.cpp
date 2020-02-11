@@ -131,9 +131,9 @@ class boss_general_vezax : public CreatureScript
                 Initialize();
             }
 
-            void JustEngagedWith(Unit* who) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
 
                 Talk(SAY_AGGRO);
                 DoCast(me, SPELL_AURA_OF_DESPAIR);

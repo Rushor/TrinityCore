@@ -525,12 +525,12 @@ void BossAI::_JustReachedHome()
     me->setActive(false);
 }
 
-void BossAI::_JustEngagedWith(Unit* who)
+void BossAI::_JustEngagedWith()
 {
     if (instance)
     {
         // bosses do not respawn, check only on enter combat
-        if (!instance->CheckRequiredBosses(_bossId, who->ToPlayer()))
+        if (!instance->CheckRequiredBosses(_bossId))
         {
             EnterEvadeMode(EVADE_REASON_SEQUENCE_BREAK);
             return;

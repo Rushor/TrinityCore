@@ -143,7 +143,7 @@ class boss_keleseth : public CreatureScript
 
             void JustEngagedWith(Unit* who) override
             {
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
                 Talk(SAY_START_COMBAT);
 
                 if (!who)

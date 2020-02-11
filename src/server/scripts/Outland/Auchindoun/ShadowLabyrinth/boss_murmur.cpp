@@ -84,6 +84,16 @@ class boss_murmur : public CreatureScript
                 me->ResetPlayerDamageReq();
             }
 
+            void JustEngagedWith(Unit* /*who*/) override
+            {
+                _JustEngagedWith();
+            }
+
+            void JustDied(Unit* /*killer*/) override
+            {
+                _JustDied();
+            }
+
             void UpdateAI(uint32 diff) override
             {
                 if (!UpdateVictim())

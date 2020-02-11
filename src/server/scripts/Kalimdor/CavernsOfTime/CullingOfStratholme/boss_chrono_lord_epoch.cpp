@@ -63,9 +63,9 @@ class boss_epoch : public CreatureScript
                     me->RemoveLootMode(LOOT_MODE_DEFAULT);
             }
 
-            void JustEngagedWith(Unit* who) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
 
                 _stepTargetIndex = 0;
                 _stepTargets.clear();

@@ -110,10 +110,10 @@ struct generic_boss_controllerAI : public BossAI
             _Reset();
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         if (!IsInGhostForm)
-            BossAI::JustEngagedWith(who);
+            _JustEngagedWith();
     }
 
     void JustDied(Unit* /*killer*/) override

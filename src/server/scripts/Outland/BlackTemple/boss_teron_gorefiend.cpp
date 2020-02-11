@@ -121,9 +121,9 @@ struct boss_teron_gorefiend : public BossAI
         }
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        BossAI::JustEngagedWith(who);
+        _JustEngagedWith();
         Talk(SAY_AGGRO);
         events.SetPhase(PHASE_COMBAT);
         events.ScheduleEvent(EVENT_ENRAGE, 10min);

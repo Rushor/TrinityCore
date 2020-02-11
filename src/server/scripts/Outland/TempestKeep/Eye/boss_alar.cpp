@@ -171,9 +171,9 @@ class boss_alar : public CreatureScript
                 me->setActive(false);
             }
 
-            void JustEngagedWith(Unit* who) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
                 me->SetDisableGravity(true); // after enterevademode will be set walk movement
                 me->setActive(true);
             }

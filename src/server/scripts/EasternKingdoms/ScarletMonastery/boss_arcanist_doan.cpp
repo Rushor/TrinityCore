@@ -55,9 +55,9 @@ struct boss_arcanist_doan : public BossAI
         _healthAbove50Pct = true;
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        BossAI::JustEngagedWith(who);
+        _JustEngagedWith();
         Talk(SAY_AGGRO);
 
         events.ScheduleEvent(EVENT_SILENCE, 15s);

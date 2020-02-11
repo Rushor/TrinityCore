@@ -144,9 +144,9 @@ class boss_mandokir : public CreatureScript
                 me->SetImmuneToAll(false);
             }
 
-            void JustEngagedWith(Unit* who) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_OVERPOWER, 7s, 9s);
                 events.ScheduleEvent(EVENT_MORTAL_STRIKE, 12s, 18s);
                 events.ScheduleEvent(EVENT_WHIRLWIND, 24s, 30s);

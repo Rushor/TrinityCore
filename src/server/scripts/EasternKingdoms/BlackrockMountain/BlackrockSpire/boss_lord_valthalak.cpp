@@ -64,9 +64,9 @@ public:
             Initialize();
         }
 
-        void JustEngagedWith(Unit* who) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            BossAI::JustEngagedWith(who);
+            _JustEngagedWith();
             events.ScheduleEvent(EVENT_SUMMON_SPECTRAL_ASSASSIN, 6s, 8s);
             events.ScheduleEvent(EVENT_SHADOW_WRATH, 9s, 18s);
         }

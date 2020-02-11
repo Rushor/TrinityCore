@@ -96,9 +96,9 @@ class boss_faerlina : public CreatureScript
                 SummonAdds();
             }
 
-            void JustEngagedWith(Unit* who) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 summons.DoZoneInCombat();
                 events.ScheduleEvent(EVENT_POISON, randtime(Seconds(10), Seconds(15)));

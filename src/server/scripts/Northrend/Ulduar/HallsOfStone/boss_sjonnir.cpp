@@ -103,7 +103,7 @@ class boss_sjonnir : public CreatureScript
                     return;
                 }
 
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
 
                 events.ScheduleEvent(EVENT_CHAIN_LIGHTNING, 3s, 8s);

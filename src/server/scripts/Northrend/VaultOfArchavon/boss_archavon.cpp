@@ -76,14 +76,14 @@ class boss_archavon : public CreatureScript
             {
             }
 
-            void JustEngagedWith(Unit* who) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 events.ScheduleEvent(EVENT_ROCK_SHARDS, 15s);
                 events.ScheduleEvent(EVENT_CHOKING_CLOUD, 30s);
                 events.ScheduleEvent(EVENT_STOMP, 45s);
                 events.ScheduleEvent(EVENT_BERSERK, 5min);
 
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
             }
 
             // Below UpdateAI may need review/debug.

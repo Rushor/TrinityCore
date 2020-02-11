@@ -70,9 +70,9 @@ class boss_instructor_malicia : public CreatureScript
                 Initialize();
             }
 
-            void JustEngagedWith(Unit* who) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_CALLOFGRAVES, 4s);
                 events.ScheduleEvent(EVENT_CORRUPTION, 8s);
                 events.ScheduleEvent(EVENT_RENEW, 32s);

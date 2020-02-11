@@ -94,9 +94,9 @@ public:
             _Reset();
         }
 
-        void JustEngagedWith(Unit* who) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            BossAI::JustEngagedWith(who);
+            _JustEngagedWith();
             events.ScheduleEvent(EVENT_FLAME_SHOCK, 2s);
             events.ScheduleEvent(EVENT_ARCANE_SHOCK, 4s);
             events.ScheduleEvent(EVENT_FROST_SHOCK, 6s);

@@ -151,9 +151,9 @@ class boss_thekal : public CreatureScript
                 instance->SetBossState(DATA_ZATH, DONE);
             }
 
-            void JustEngagedWith(Unit* who) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
                 events.SetPhase(PHASE_ONE);
                 events.ScheduleEvent(EVENT_MORTALCLEAVE, 4s, 0, PHASE_ONE);
                 events.ScheduleEvent(EVENT_SILENCE, 9s, 0, PHASE_ONE);

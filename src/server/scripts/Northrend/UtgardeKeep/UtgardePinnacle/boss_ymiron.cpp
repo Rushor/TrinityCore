@@ -138,9 +138,9 @@ public:
             me->SetReactState(REACT_AGGRESSIVE);
         }
 
-        void JustEngagedWith(Unit* who) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            BossAI::JustEngagedWith(who);
+            _JustEngagedWith();
             Talk(SAY_AGGRO);
             events.ScheduleEvent(EVENT_BANE, 18s, 23s, EVENT_GROUP_BASE_SPELLS);
             events.ScheduleEvent(EVENT_FETID_ROT, 8s, 13s, EVENT_GROUP_BASE_SPELLS);

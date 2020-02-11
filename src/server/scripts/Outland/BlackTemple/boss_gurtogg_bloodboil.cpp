@@ -126,10 +126,10 @@ struct boss_gurtogg_bloodboil : public BossAI
         BossAI::AttackStart(who);
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         Talk(SAY_AGGRO);
-        BossAI::JustEngagedWith(who);
+        _JustEngagedWith();
         events.ScheduleEvent(EVENT_BERSERK, 10min);
         events.ScheduleEvent(EVENT_CHANGE_PHASE, 1min);
         ScheduleEvents();

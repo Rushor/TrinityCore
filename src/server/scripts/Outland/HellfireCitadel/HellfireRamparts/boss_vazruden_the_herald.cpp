@@ -227,10 +227,10 @@ class boss_vazruden : public CreatureScript
                 _Reset();
             }
 
-            void JustEngagedWith(Unit* who) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
                 Talk(SAY_AGGRO);
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
             }
 
             void KilledUnit(Unit* who) override

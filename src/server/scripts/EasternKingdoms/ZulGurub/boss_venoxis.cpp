@@ -122,9 +122,9 @@ class boss_venoxis : public CreatureScript
                 me->RemoveAllAuras();
             }
 
-            void JustEngagedWith(Unit* who) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
                 me->SetReactState(REACT_AGGRESSIVE);
                 // Always running events
                 events.ScheduleEvent(EVENT_THRASH, 5s);

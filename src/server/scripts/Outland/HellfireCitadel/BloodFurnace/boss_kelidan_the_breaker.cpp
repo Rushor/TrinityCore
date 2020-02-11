@@ -101,7 +101,7 @@ class boss_kelidan_the_breaker : public CreatureScript
 
             void JustEngagedWith(Unit* who) override
             {
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
                 Talk(SAY_WAKE);
                 if (me->IsNonMeleeSpellCast(false))
                     me->InterruptNonMeleeSpells(true);

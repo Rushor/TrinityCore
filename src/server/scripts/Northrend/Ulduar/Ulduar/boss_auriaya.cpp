@@ -157,9 +157,9 @@ struct boss_auriaya : public BossAI
         }
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        BossAI::JustEngagedWith(who);
+        _JustEngagedWith();
         Talk(SAY_AGGRO);
         instance->SendEncounterUnit(ENCOUNTER_FRAME_ENGAGE, me);
         events.ScheduleEvent(EVENT_SONIC_SCREECH, 48s);

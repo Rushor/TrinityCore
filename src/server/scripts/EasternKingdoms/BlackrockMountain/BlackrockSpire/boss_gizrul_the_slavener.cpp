@@ -59,9 +59,9 @@ public:
             me->GetMotionMaster()->MovePath(GIZRUL_PATH, false);
         }
 
-        void JustEngagedWith(Unit* who) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
-            BossAI::JustEngagedWith(who);
+            _JustEngagedWith();
             events.ScheduleEvent(EVENT_FATAL_BITE, 17s, 20s);
             events.ScheduleEvent(EVENT_INFECTED_BITE, 10s, 12s);
         }

@@ -611,9 +611,9 @@ class boss_thorim : public CreatureScript
                 SetBoundary(&ArenaBoundaries);
             }
 
-            void JustEngagedWith(Unit* who) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
                 Talk(SAY_AGGRO_1);
 
                 events.SetPhase(PHASE_1);

@@ -76,9 +76,9 @@ class boss_king_dred : public CreatureScript
                 _Reset();
             }
 
-            void JustEngagedWith(Unit* who) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
 
                 events.ScheduleEvent(EVENT_BELLOWING_ROAR, 33s);
                 events.ScheduleEvent(EVENT_GRIEVOUS_BITE, 20s);

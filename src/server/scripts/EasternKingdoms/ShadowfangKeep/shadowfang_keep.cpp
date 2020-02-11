@@ -255,9 +255,9 @@ class boss_archmage_arugal : public CreatureScript
                     Talk(SAY_TRANSFORM);
             }
 
-            void JustEngagedWith(Unit* who) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 events.ScheduleEvent(EVENT_CURSE, 7s);
                 events.ScheduleEvent(EVENT_TELEPORT, 15s);

@@ -81,10 +81,10 @@ public:
             _Reset();
         }
 
-        void JustEngagedWith(Unit* who) override
+        void JustEngagedWith(Unit* /*who*/) override
         {
             DoCastVictim(SPELL_BIRTH);
-            BossAI::JustEngagedWith(who);
+            _JustEngagedWith();
         }
 
         void UpdateAI(uint32 diff) override

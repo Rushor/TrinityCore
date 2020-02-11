@@ -80,9 +80,9 @@ class boss_drakos : public CreatureScript
                 Initialize();
             }
 
-            void JustEngagedWith(Unit* who) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
             }
 

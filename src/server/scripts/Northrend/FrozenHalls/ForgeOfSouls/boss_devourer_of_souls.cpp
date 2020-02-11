@@ -155,9 +155,9 @@ class boss_devourer_of_souls : public CreatureScript
                 Initialize();
             }
 
-            void JustEngagedWith(Unit* who) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
                 Talk(SAY_FACE_AGGRO);
 
                 if (!me->FindNearestCreature(NPC_CRUCIBLE_OF_SOULS, 60)) // Prevent double spawn

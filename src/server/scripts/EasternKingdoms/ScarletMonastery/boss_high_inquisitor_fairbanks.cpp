@@ -73,9 +73,9 @@ struct boss_high_inquisitor_fairbanks : public BossAI
         me->SetStandState(UNIT_STAND_STATE_DEAD);
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        BossAI::JustEngagedWith(who);
+        _JustEngagedWith();
         events.ScheduleEvent(EVENT_CURSE_BLOOD, 10s);
         events.ScheduleEvent(EVENT_DIPEL_MAGIC, 30s);
         events.ScheduleEvent(EVENT_FEAR, 40s);

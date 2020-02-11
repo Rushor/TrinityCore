@@ -86,9 +86,9 @@ class boss_omor_the_unscarred : public CreatureScript
                 _Reset();
             }
 
-            void JustEngagedWith(Unit* who) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
             }
 

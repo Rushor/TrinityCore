@@ -104,9 +104,9 @@ class boss_garfrost : public CreatureScript
                 Initialize();
             }
 
-            void JustEngagedWith(Unit* who) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 DoCast(me, SPELL_PERMAFROST);
                 me->CallForHelp(70.0f);

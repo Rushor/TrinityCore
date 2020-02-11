@@ -103,9 +103,9 @@ public:
         instance->HandleGameObject(ObjectGuid::Empty, false, instance->GetGameObject(DATA_HIGH_INQUISITORS_DOOR));
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
-        BossAI::JustEngagedWith(who);
+        _JustEngagedWith();
 
         Talk(SAY_MO_AGGRO);
 

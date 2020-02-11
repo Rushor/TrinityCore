@@ -86,9 +86,9 @@ class boss_saviana_ragefire : public CreatureScript
                 me->SetDisableGravity(false);
             }
 
-            void JustEngagedWith(Unit* who) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 events.Reset();
                 events.ScheduleEvent(EVENT_ENRAGE, Seconds(20), EVENT_GROUP_LAND_PHASE);

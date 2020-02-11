@@ -55,9 +55,9 @@ class boss_lord_alexei_barov : public CreatureScript
                     DoCast(me, SPELL_UNHOLY_AURA);
             }
 
-            void JustEngagedWith(Unit* who) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_IMMOLATE, 7s);
                 events.ScheduleEvent(EVENT_VEILOFSHADOW, 15s);
             }

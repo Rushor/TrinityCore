@@ -114,9 +114,9 @@ class boss_halazzi : public CreatureScript
                 EnterPhase(PHASE_LYNX);
             }
 
-            void JustEngagedWith(Unit* who) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 EnterPhase(PHASE_LYNX);
             }

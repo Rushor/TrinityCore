@@ -57,10 +57,10 @@ struct boss_interrogator_vishas : public BossAI
         _Reset();
     }
 
-    void JustEngagedWith(Unit* who) override
+    void JustEngagedWith(Unit* /*who*/) override
     {
         Talk(SAY_AGGRO);
-        BossAI::JustEngagedWith(who);
+        _JustEngagedWith();
         events.ScheduleEvent(EVENT_SHADOW_WORD_PAIN, 5s);
     }
 

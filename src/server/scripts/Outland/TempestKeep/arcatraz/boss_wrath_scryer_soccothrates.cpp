@@ -111,9 +111,9 @@ class boss_wrath_scryer_soccothrates : public CreatureScript
                         dalliah->AI()->SetData(1, 1);
             }
 
-            void JustEngagedWith(Unit* who) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_FELFIRE_SHOCK, 12s, 14s);
                 events.ScheduleEvent(EVENT_KNOCK_AWAY, 11s, 12s);
                 events.ScheduleEvent(EVENT_ME_FIRST, 6s);

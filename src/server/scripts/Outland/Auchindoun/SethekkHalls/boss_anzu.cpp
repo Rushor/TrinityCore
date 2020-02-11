@@ -85,9 +85,9 @@ class boss_anzu : public CreatureScript
                 Initialize();
             }
 
-            void JustEngagedWith(Unit* who) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_PARALYZING_SCREECH, 14s);
                 events.ScheduleEvent(EVENT_CYCLONE_OF_FEATHERS, 5s);
             }

@@ -180,9 +180,9 @@ class boss_viscidus : public CreatureScript
                 }
             }
 
-            void JustEngagedWith(Unit* who) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
                 events.Reset();
                 InitSpells();
             }

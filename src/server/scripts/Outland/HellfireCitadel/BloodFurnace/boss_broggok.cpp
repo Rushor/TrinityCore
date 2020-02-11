@@ -67,9 +67,9 @@ class boss_broggok : public CreatureScript
                 DoAction(ACTION_RESET_BROGGOK);
             }
 
-            void JustEngagedWith(Unit* who) override
+            void JustEngagedWith(Unit* /*who*/) override
             {
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
                 Talk(SAY_AGGRO);
             }
 

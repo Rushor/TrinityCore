@@ -70,7 +70,7 @@ class boss_nethermancer_sepethrea : public CreatureScript
 
             void JustEngagedWith(Unit* who) override
             {
-                BossAI::JustEngagedWith(who);
+                _JustEngagedWith();
                 events.ScheduleEvent(EVENT_FROST_ATTACK, 7s, 10s);
                 events.ScheduleEvent(EVENT_ARCANE_BLAST, 12s, 18s);
                 events.ScheduleEvent(EVENT_DRAGONS_BREATH, 18s, 22s);
