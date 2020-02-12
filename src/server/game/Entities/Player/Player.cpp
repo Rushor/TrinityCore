@@ -26854,3 +26854,45 @@ std::string Player::GetDebugInfo() const
     sstr << Unit::GetDebugInfo();
     return sstr.str();
 }
+
+/* Updates ItemCount values for all concerned quests and items. Completes and incompletes quests when needed. */
+void Player::ReloadQuestStatusForItemCount()
+{
+    for (uint8 i = 0; i < MAX_QUEST_LOG_SIZE; ++i) {
+
+        uint32 questId = GetQuestSlotQuestId(i);
+        if (!questId)
+            continue;
+
+        Quest const* qInfo = sObjectMgr->GetQuestTemplate(questId);
+        if (!qInfo)
+            continue;
+
+        if (!qInfo->HasSpecialFlag(QUEST_SPECIAL_FLAGS_DELIVER))
+            continue;
+
+        QuestStatusData& qStatus = m_QuestStatus[questId];
+
+        bool gotAllItems = true;
+
+        for (uint8 j = 0; j < QUEST_ITEM_OBJECTIVES_COUNT; ++j) {
+
+            uint32 reqItem = qInfo->RequiredItemId[j];
+            if (!reqItem)
+                continue;
+
+            uint32 requiredCount = qInfo->RequiredItemCount[j];
+            uint16 newCount = std::min<uint16>(requiredCount, GetItemCount(reqItem, false));
+
+            qStatus.ItemCount[j] = newCount;
+
+            if (newCount < requiredCount)
+                gotAllItems = false;
+        }
+
+        if (CanCompleteQuest(questId)) // Player got all items before crash
+            CompleteQuest(questId);
+        else if (qStatus.Status == QUEST_STATE_COMPLETE && !gotAllItems) // Player lost a required item before crash
+            IncompleteQuest(questId);
+    }
+}
