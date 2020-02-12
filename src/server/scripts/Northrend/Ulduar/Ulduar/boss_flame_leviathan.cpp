@@ -1845,6 +1845,31 @@ class spell_vehicle_throw_passenger : public SpellScriptLoader
         }
 };
 
+class spell_orbital_supports : public SpellScriptLoader
+{
+    public:
+        spell_orbital_supports() : SpellScriptLoader("spell_orbital_supports") { }
+    
+        class spell_orbital_supports_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_orbital_supports_AuraScript);
+    
+            bool CheckAreaTarget(Unit* target)
+            {
+                return target->GetEntry() == NPC_LEVIATHAN;
+            }
+            void Register() override
+            {
+                DoCheckAreaTarget += AuraCheckAreaTargetFn(spell_orbital_supports_AuraScript::CheckAreaTarget);
+            }
+        };
+    
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_orbital_supports_AuraScript();
+        }
+};
+
 void AddSC_boss_flame_leviathan()
 {
     new boss_flame_leviathan();
@@ -1882,4 +1907,5 @@ void AddSC_boss_flame_leviathan()
     new spell_systems_shutdown();
     new spell_pursue();
     new spell_vehicle_throw_passenger();
+    new spell_orbital_supports();
 }
