@@ -124,6 +124,17 @@ enum GrimstoneTexts
     SAY_TEXT6          = 5
 };
 
+enum GrimstoneSpells
+{
+    // Other spells used by Grimstone
+    SPELL_ASHCROMBES_TELEPORT_A = 15742,
+    SPELL_ASHCROMBES_TELEPORT_B = 6422,
+    SPELL_ARENA_FLASH_A         = 15737,
+    SPELL_ARENA_FLASH_B         = 15739,
+    SPELL_ARENA_FLASH_C         = 15740,
+    SPELL_ARENA_FLASH_D         = 15741,
+};
+
 /// @todo implement quest part of event (different end boss)
 class npc_grimstone : public CreatureScript
 {
@@ -185,7 +196,10 @@ public:
         void SummonRingMob()
         {
             if (Creature* tmp = me->SummonCreature(RingMob[MobSpawnId], 608.960f, -235.322f, -53.907f, 1.857f, TEMPSUMMON_DEAD_DESPAWN, 0))
+            {
                 RingMobGUID[MobCount] = tmp->GetGUID();
+                tmp->GetMotionMaster()->MovePoint(0, 594.732f + urand(0, 5), -203.786f + urand(0, 5), -53.959f);
+            }                
 
             ++MobCount;
 
@@ -208,13 +222,14 @@ public:
             {
                 case 0:
                     Talk(SAY_TEXT1);
+                    DoCast(me, SPELL_ASHCROMBES_TELEPORT_A, true);
                     CanWalk = false;
-                    Event_Timer = 5000;
+                    Event_Timer = 8000;
                     break;
                 case 1:
                     Talk(SAY_TEXT2);
                     CanWalk = false;
-                    Event_Timer = 5000;
+                    Event_Timer = 8000;
                     break;
                 case 2:
                     CanWalk = false;
@@ -225,7 +240,7 @@ public:
                 case 4:
                     Talk(SAY_TEXT4);
                     CanWalk = false;
-                    Event_Timer = 5000;
+                    Event_Timer = 8000;
                     break;
                 case 5:
                     instance->UpdateEncounterStateForKilledCreature(NPC_GRIMSTONE, me);
@@ -286,66 +301,73 @@ public:
                 {
                     switch (EventPhase)
                     {
-                    case 0:
-                        Talk(SAY_TEXT5);
-                        HandleGameObject(DATA_ARENA4, false);
-                        Start(false, false);
-                        CanWalk = true;
-                        Event_Timer = 0;
-                        break;
-                    case 1:
-                        CanWalk = true;
-                        Event_Timer = 0;
-                        break;
-                    case 2:
-                        Event_Timer = 2000;
-                        break;
-                    case 3:
-                        HandleGameObject(DATA_ARENA1, true);
-                        Event_Timer = 3000;
-                        break;
-                    case 4:
-                        CanWalk = true;
-                        me->SetVisible(false);
-                        SummonRingMob();
-                        Event_Timer = 8000;
-                        break;
-                    case 5:
-                        SummonRingMob();
-                        SummonRingMob();
-                        Event_Timer = 8000;
-                        break;
-                    case 6:
-                        SummonRingMob();
-                        Event_Timer = 5000;
-                        break;
-                    case 7:
-                        me->SetVisible(true);
-                        HandleGameObject(DATA_ARENA1, false);
-                        Talk(SAY_TEXT6);
-                        CanWalk = true;
-                        Event_Timer = 5000;
-                        break;
-                    case 8:
-                        HandleGameObject(DATA_ARENA2, true);
-                        Event_Timer = 5000;
-                        break;
-                    case 9:
-                        me->SetVisible(false);
-                        SummonRingBoss();
-                        Event_Timer = 0;
-                        break;
-                    case 10:
-                        //if quest, complete
-                        HandleGameObject(DATA_ARENA2, false);
-                        HandleGameObject(DATA_ARENA3, true);
-                        HandleGameObject(DATA_ARENA4, true);
-                        CanWalk = true;
-                        Event_Timer = 0;
-                        break;
+                        case 0:
+                            Talk(SAY_TEXT5);
+                            HandleGameObject(DATA_ARENA4, false);
+                            Start(false, false);
+                            CanWalk = true;
+                            Event_Timer = 0;
+                            break;
+                        case 1:
+                            CanWalk = true;
+                            Event_Timer = 0;
+                            break;
+                        case 2:
+                            Event_Timer = 2000;
+                            break;
+                        case 3:
+                            HandleGameObject(DATA_ARENA1, true);
+                            DoCast(me, SPELL_ARENA_FLASH_A, true);
+                            DoCast(me, SPELL_ARENA_FLASH_B, true);
+                            Event_Timer = 3000;
+                            break;
+                        case 4:
+                            CanWalk = true;
+                            me->SetVisible(false);
+                            SummonRingMob();
+                            Event_Timer = 8000;
+                            break;
+                        case 5:
+                            SummonRingMob();
+                            SummonRingMob();
+                            Event_Timer = 8000;
+                            break;
+                        case 6:
+                            SummonRingMob();
+                            Event_Timer = 0;
+                            break;
+                        case 7:
+                            me->SetVisible(true);
+                            DoCast(me, SPELL_ASHCROMBES_TELEPORT_A, true);
+                            HandleGameObject(DATA_ARENA1, true);
+                            Talk(SAY_TEXT6);
+                            CanWalk = false;
+                            Event_Timer = 8000;
+                            break;
+                        case 8:
+                            HandleGameObject(DATA_ARENA2, true);
+                            DoCast(me, SPELL_ARENA_FLASH_C, true);
+                            DoCast(me, SPELL_ARENA_FLASH_D, true);
+                            Event_Timer = 5000;
+                            break;
+                        case 9:
+                            me->SetVisible(false);
+                            SummonRingBoss();
+                            me->GetMotionMaster()->MovePoint(0, 596.578f, -188.769f, -54.155f, true);
+                            Event_Timer = 0;
+                            break;
+                        case 10:
+                            //if quest, complete
+                            HandleGameObject(DATA_ARENA2, false);
+                            HandleGameObject(DATA_ARENA3, true);
+                            HandleGameObject(DATA_ARENA4, true);
+                            CanWalk = true;
+                            Event_Timer = 0;
+                            break;
                     }
                     ++EventPhase;
-                } else Event_Timer -= diff;
+                }
+                else Event_Timer -= diff;
             }
 
             if (CanWalk)
