@@ -195,6 +195,7 @@ struct boss_jedoga_shadowseeker : public BossAI
     void JustDied(Unit* /*killer*/) override
     {
         _JustDied();
+        me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         Talk(SAY_DEATH);
     }
 
