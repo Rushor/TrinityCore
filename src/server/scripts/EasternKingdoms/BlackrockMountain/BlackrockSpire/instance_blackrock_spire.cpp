@@ -229,6 +229,16 @@ public:
                     if (GetBossState(DATA_GYTH) == DONE)
                         HandleGameObject(ObjectGuid::Empty, true, go);
                     break;
+                case GO_DRAKKISATH_DOOR_1:
+                    go_drakkisath_door_one = go->GetGUID();
+                    if (GetBossState(DATA_GENERAL_DRAKKISATH) == DONE)
+                        HandleGameObject(ObjectGuid::Empty, true, go);
+                    break;
+                case GO_DRAKKISATH_DOOR_2:
+                    go_drakkisath_door_two = go->GetGUID();
+                    if (GetBossState(DATA_GENERAL_DRAKKISATH) == DONE)
+                        HandleGameObject(ObjectGuid::Empty, true, go);
+                    break;
                 default:
                     break;
             }
@@ -374,6 +384,12 @@ public:
                     return go_portcullis_active;
                 case GO_PORTCULLIS_TOBOSSROOMS:
                     return go_portcullis_tobossrooms;
+                case GO_DRAKKISATH_DOOR_1:
+                    return go_drakkisath_door_one;
+                    break;
+                case GO_DRAKKISATH_DOOR_2:
+                    return go_drakkisath_door_two;
+                    break;
                 default:
                     break;
             }
@@ -524,6 +540,8 @@ public:
             ObjectGuid runecreaturelist[7][5];
             ObjectGuid go_portcullis_active;
             ObjectGuid go_portcullis_tobossrooms;
+            ObjectGuid go_drakkisath_door_one;
+            ObjectGuid go_drakkisath_door_two;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override
