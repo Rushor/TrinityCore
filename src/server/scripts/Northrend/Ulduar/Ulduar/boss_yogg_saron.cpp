@@ -3091,21 +3091,18 @@ class spell_yogg_saron_in_the_maws_of_the_old_god : public SpellScriptLoader    
 
             SpellCastResult CheckRequirement()
             {
-                if (InstanceScript* instance = GetCaster()->GetInstanceScript())
-                {
-                    if (Creature* yogg = instance->GetCreature(BOSS_YOGG_SARON))
-                    {
-                        if (yogg->FindCurrentSpellBySpellId(SPELL_DEAFENING_ROAR))
-                        {
-                            if (GetCaster()->GetDistance(yogg) > 20.0f)
-                                return SPELL_FAILED_OUT_OF_RANGE;
-                            else
-                                return SPELL_CAST_OK;
-                        }
-                    }
-                }
+                if (GetCaster()->GetTypeId() != TYPEID_PLAYER)
+                    return SPELL_FAILED_BAD_TARGETS;
 
-                return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+                Unit* target = GetCaster()->ToPlayer()->GetSelectedUnit();
+                if (!target || target->GetEntry() != NPC_YOGG_SARON)
+                    return SPELL_FAILED_BAD_TARGETS;
+
+                Spell* spell = target->GetCurrentSpell(CURRENT_GENERIC_SPELL);
+                if (!spell || spell->GetSpellInfo()->Id != SPELL_DEAFENING_ROAR)
+                    return SPELL_FAILED_TARGET_AURASTATE;
+
+                return SPELL_CAST_OK;
             }
 
             void Register() override
