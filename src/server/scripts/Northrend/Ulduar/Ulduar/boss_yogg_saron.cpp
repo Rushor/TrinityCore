@@ -1463,6 +1463,20 @@ class npc_descend_into_madness : public CreatureScript
         {
             npc_descend_into_madnessAI(Creature* creature) : PassiveAI(creature), _instance(creature->GetInstanceScript()) { }
 
+            bool GossipHello(Player* player) override
+            {
+                if (!player)
+                    return;
+
+                player->RemoveAurasDueToSpell(SPELL_BRAIN_LINK);
+                uint32 illusion = _instance->GetData(DATA_ILLUSION);
+                if (illusion < MAX_ILLUSION_ROOMS)
+                    DoCast(player, IllusionSpells[illusion], true);
+                me->DespawnOrUnsummon();
+
+                return true;
+            }
+
             void OnSpellClick(Unit* clicker, bool spellClickHandled) override
             {
                 if (!spellClickHandled)
