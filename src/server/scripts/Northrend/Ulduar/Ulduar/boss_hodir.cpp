@@ -142,6 +142,7 @@ enum HodirActions
 {
     ACTION_I_HAVE_THE_COOLEST_FRIENDS            = 1,
     ACTION_CHEESE_THE_FREEZE                     = 2,
+    ACTION_GETTING_COLD_IN_HERE                  = 3
 };
 
 enum Achievements
@@ -152,11 +153,10 @@ enum Achievements
     ACHIEVEMENT_CHEESE_THE_FREEZE_25             = 2962,
     ACHIEVEMENT_COOLEST_FRIENDS_10               = 2963,
     ACHIEVEMENT_COOLEST_FRIENDS_25               = 2965,
+    ACHIEVEMENT_GETTING_COLD_IN_HERE_10          = 2967,
+    ACHIEVEMENT_GETTING_COLD_IN_HERE_25          = 2968,
 };
 
-#define ACHIEVEMENT_CHEESE_THE_FREEZE            RAID_MODE<uint8>(2961, 2962)
-#define ACHIEVEMENT_GETTING_COLD_IN_HERE         RAID_MODE<uint8>(2967, 2968)
-#define ACHIEVEMENT_COOLEST_FRIENDS              RAID_MODE<uint8>(2963, 2965)
 #define FRIENDS_COUNT                            RAID_MODE<uint8>(4, 8)
 
 enum Misc
@@ -353,14 +353,11 @@ class boss_hodir : public CreatureScript
 
             void Initialize()
             {
-                gettingColdInHereTimer = 0;
                 gettingColdInHere = false;
                 cheeseTheFreeze = false;
                 iHaveTheCoolestFriends = false;
                 iCouldSayThatThisCacheWasRare = false;
             }
-
-            uint32 gettingColdInHereTimer;
 
             bool gettingColdInHere;
             bool cheeseTheFreeze;
@@ -386,7 +383,6 @@ class boss_hodir : public CreatureScript
                 DoCast(me, SPELL_BITING_COLD, true);
                 DoCast(me, SPELL_SHATTER_CHEST, true);
 
-                gettingColdInHereTimer = 1000;
                 gettingColdInHere = true;
                 cheeseTheFreeze = true;
                 iHaveTheCoolestFriends = true;
@@ -457,6 +453,8 @@ class boss_hodir : public CreatureScript
                         instance->DoCompleteAchievement(RAID_MODE(ACHIEVEMENT_CHEESE_THE_FREEZE_10, ACHIEVEMENT_CHEESE_THE_FREEZE_25));
                     if (iHaveTheCoolestFriends)
                         instance->DoCompleteAchievement(RAID_MODE(ACHIEVEMENT_COOLEST_FRIENDS_10, ACHIEVEMENT_COOLEST_FRIENDS_25));
+                    if (gettingColdInHere)
+                        instance->DoCompleteAchievement(RAID_MODE(ACHIEVEMENT_GETTING_COLD_IN_HERE_10, ACHIEVEMENT_GETTING_COLD_IN_HERE_25));
 
                     _JustDied();
                 }
@@ -534,18 +532,6 @@ class boss_hodir : public CreatureScript
                         return;
                 }
 
-                if (gettingColdInHereTimer <= diff && gettingColdInHere)
-                {
-                    for (auto const& pair : me->GetCombatManager().GetPvECombatRefs())
-                        if (Player* target = pair.second->GetOther(me)->ToPlayer())
-                            if (Aura* BitingColdAura = target->GetAura(SPELL_BITING_COLD_TRIGGERED))
-                                if (BitingColdAura->GetStackAmount() > 2)
-                                    SetData(DATA_GETTING_COLD_IN_HERE, 0);
-                    gettingColdInHereTimer = 1000;
-                }
-                else
-                    gettingColdInHereTimer -= diff;
-
                 DoMeleeAttackIfReady();
             }
 
@@ -558,6 +544,9 @@ class boss_hodir : public CreatureScript
                         break;
                     case ACTION_CHEESE_THE_FREEZE:
                         cheeseTheFreeze = false;
+                        break;
+                    case ACTION_GETTING_COLD_IN_HERE:
+                        gettingColdInHere = false;
                         break;
                     default:
                         break;
@@ -1069,6 +1058,10 @@ class spell_biting_cold : public SpellScriptLoader
                     {
                         target->CastSpell(target, SPELL_BITING_COLD_TRIGGERED, true);
                         itr->second = 1;
+
+                        if (target->GetAuraCount(SPELL_BITING_COLD_TRIGGERED) > 2 && target->GetMap()->IsDungeon())
+                            if (Unit* hodir = ObjectAccessor::GetUnit(*target, target->GetInstanceScript()->GetGuidData(BOSS_HODIR)))
+                                hodir->GetAI()->DoAction(ACTION_GETTING_COLD_IN_HERE);
                     }
                     else
                     {
