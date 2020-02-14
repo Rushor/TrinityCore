@@ -31,13 +31,6 @@
 #include "SpellMgr.h"
 #include "ulduar.h"
 
-/* @todo Achievements
-          Storm Cloud (Shaman ability)
-          Destroying of Toasty Fires
-*/
-
-/* @todo Hodir aggro behavior is wonky. He gets set to _PASSIVE, but never to _AGGRESSIVE unless you kill an ice block which doesn't spawn unless you have*/
-
 enum HodirYells
 {
     SAY_AGGRO                                    = 0,
@@ -155,6 +148,8 @@ enum Achievements
 {
     ACHIEVEMENT_THIS_CACHE_WAS_RARE_10           = 3182,
     ACHIEVEMENT_THIS_CACHE_WAS_RARE_25           = 3184,
+    ACHIEVEMENT_CHEESE_THE_FREEZE_10             = 2961,
+    ACHIEVEMENT_CHEESE_THE_FREEZE_25             = 2962,
 };
 
 #define ACHIEVEMENT_CHEESE_THE_FREEZE            RAID_MODE<uint8>(2961, 2962)
@@ -454,6 +449,10 @@ class boss_hodir : public CreatureScript
                         chest->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                     if (GameObject* chest = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_HODIR_CHEST_HERO)))
                         chest->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+
+                    // Other achievements
+                    if (cheeseTheFreeze)
+                        instance->DoCompleteAchievement(RAID_MODE(ACHIEVEMENT_CHEESE_THE_FREEZE_10, ACHIEVEMENT_CHEESE_THE_FREEZE_25));
 
                     _JustDied();
                 }
