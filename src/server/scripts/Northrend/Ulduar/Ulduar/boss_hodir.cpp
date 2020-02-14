@@ -25,6 +25,11 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "ulduar.h"
+#include "SpellAuraEffects.h"
+#include "PassiveAI.h"
+#include "Player.h"
+#include "SpellMgr.h"
+#include "ulduar.h"
 
 /* @todo Achievements
           Storm Cloud (Shaman ability)
@@ -69,6 +74,8 @@ enum HodirSpells
     SPELL_BERSERK                                = 47008,
     SPELL_ICE_SHARD                              = 62457,
     SPELL_ICE_SHARD_HIT                          = 65370,
+    SPELL_SHATTER_CHEST                          = 65272, // timer aura to destroy hm chest
+    SPELL_SHATTER_CHEST_TRIGGER                  = 62501,
 
     SPELL_KILL_CREDIT                            = 64899,
 
@@ -78,7 +85,11 @@ enum HodirSpells
 
     // Shamans
     SPELL_LAVA_BURST                             = 61924,
+    SPELL_STORM_CLOUD_SELECTOR                   = 62797,
     SPELL_STORM_CLOUD                            = 65123,
+    SPELL_STORM_CLOUD_25                         = 65133,
+    SPELL_STORM_CLOUD_BUFF                       = 63711,
+    SPELL_STORM_CLOUD_BUFF_25                    = 65134,
 
     // Mages
     SPELL_FIREBALL                               = 61909,
@@ -112,26 +123,26 @@ enum HodirEvents
 {
     // Hodir
     EVENT_FREEZE                                 = 1,
-    EVENT_FLASH_FREEZE                           = 2,
-    EVENT_FLASH_FREEZE_EFFECT                    = 3,
-    EVENT_ICICLE                                 = 4,
-    EVENT_BLOWS                                  = 5,
-    EVENT_RARE_CACHE                             = 6,
-    EVENT_BERSERK                                = 7,
+    EVENT_FLASH_FREEZE,                           
+    EVENT_FLASH_FREEZE_EFFECT,                    
+    EVENT_ICICLE,                                 
+    EVENT_BLOWS,                                  
+    EVENT_RARE_CACHE,                             
+    EVENT_BERSERK,                                
 
     // Priest
-    EVENT_HEAL                                   = 8,
-    EVENT_DISPEL_MAGIC                           = 9,
+    EVENT_HEAL,                                   
+    EVENT_DISPEL_MAGIC,                           
 
     // Shaman
-    EVENT_STORM_CLOUD                            = 10,
+    EVENT_STORM_CLOUD,                            
 
     // Druid
-    EVENT_STARLIGHT                              = 11,
+    EVENT_STARLIGHT,                              
 
     // Mage
-    EVENT_CONJURE_FIRE                           = 12,
-    EVENT_MELT_ICE                               = 13,
+    EVENT_CONJURE_FIRE,                           
+    EVENT_MELT_ICE,                                                       
 };
 
 enum HodirActions
@@ -140,9 +151,14 @@ enum HodirActions
     ACTION_CHEESE_THE_FREEZE                     = 2,
 };
 
+enum Achievements
+{
+    ACHIEVEMENT_THIS_CACHE_WAS_RARE_10           = 3182,
+    ACHIEVEMENT_THIS_CACHE_WAS_RARE_25           = 3184,
+};
+
 #define ACHIEVEMENT_CHEESE_THE_FREEZE            RAID_MODE<uint8>(2961, 2962)
 #define ACHIEVEMENT_GETTING_COLD_IN_HERE         RAID_MODE<uint8>(2967, 2968)
-#define ACHIEVEMENT_THIS_CACHE_WAS_RARE          RAID_MODE<uint8>(3182, 3184)
 #define ACHIEVEMENT_COOLEST_FRIENDS              RAID_MODE<uint8>(2963, 2965)
 #define FRIENDS_COUNT                            RAID_MODE<uint8>(4, 8)
 
@@ -188,6 +204,7 @@ class npc_flash_freeze : public CreatureScript
                 instance = me->GetInstanceScript();
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetControlled(true, UNIT_STATE_ROOT);
             }
 
@@ -268,6 +285,7 @@ class npc_ice_block : public CreatureScript
                 instance = me->GetInstanceScript();
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
                 me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED | UNIT_FLAG_PACIFIED);
+                me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetControlled(true, UNIT_STATE_ROOT);
             }
 
@@ -369,6 +387,7 @@ class boss_hodir : public CreatureScript
                 _JustEngagedWith();
                 Talk(SAY_AGGRO);
                 DoCast(me, SPELL_BITING_COLD, true);
+                DoCast(me, SPELL_SHATTER_CHEST, true);
 
                 gettingColdInHereTimer = 1000;
                 gettingColdInHere = true;
@@ -376,12 +395,19 @@ class boss_hodir : public CreatureScript
                 iHaveTheCoolestFriends = true;
                 iCouldSayThatThisCacheWasRare = true;
 
+                me->SetReactState(REACT_AGGRESSIVE);
+
                 events.ScheduleEvent(EVENT_ICICLE, 2s);
                 events.ScheduleEvent(EVENT_FREEZE, 25s);
                 events.ScheduleEvent(EVENT_BLOWS, 60s, 65s);
                 events.ScheduleEvent(EVENT_FLASH_FREEZE, 45s);
                 events.ScheduleEvent(EVENT_RARE_CACHE, 3min);
                 events.ScheduleEvent(EVENT_BERSERK, 8min);
+
+                if (GameObject* chest = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_HODIR_RARE_CACHE)))
+                    chest->SetPhaseMask(PHASEMASK_NORMAL, true);
+                if (GameObject* chest = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_HODIR_RARE_CACHE_HERO)))
+                    chest->SetPhaseMask(PHASEMASK_NORMAL, true);
             }
 
             void KilledUnit(Unit* who) override
@@ -397,7 +423,14 @@ class boss_hodir : public CreatureScript
                     damage = 0;
                     Talk(SAY_DEATH);
                     if (iCouldSayThatThisCacheWasRare)
+                    {
+                        if (GameObject* chest = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_HODIR_RARE_CACHE)))
+                            chest->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                        if (GameObject* chest = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_HODIR_RARE_CACHE_HERO)))
+                            chest->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
                         instance->SetData(DATA_HODIR_RARE_CACHE, 1);
+                        instance->DoCompleteAchievement(RAID_MODE(ACHIEVEMENT_THIS_CACHE_WAS_RARE_10, ACHIEVEMENT_THIS_CACHE_WAS_RARE_25));
+                    }                       
 
                     me->RemoveAllAuras();
                     me->RemoveAllAttackers();
@@ -416,6 +449,11 @@ class boss_hodir : public CreatureScript
                                                         /// spell will target enemies only
                     me->SetFaction(FACTION_FRIENDLY);
                     me->DespawnOrUnsummon(10000);
+
+                    if (GameObject* chest = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_HODIR_CHEST)))
+                        chest->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    if (GameObject* chest = ObjectAccessor::GetGameObject(*me, instance->GetGuidData(DATA_HODIR_CHEST_HERO)))
+                        chest->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
 
                     _JustDied();
                 }
@@ -726,6 +764,11 @@ class npc_hodir_priest : public CreatureScript
                     hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
             }
 
+            bool CanAIAttack(Unit const* target) const override
+            {
+                return (me->GetPositionZ() < 429.0f) == (target->GetPositionZ() < 429.0f);
+            }
+
         private:
             InstanceScript* instance;
             EventMap events;
@@ -752,7 +795,7 @@ class npc_hodir_shaman : public CreatureScript
             void Reset() override
             {
                 events.Reset();
-                events.ScheduleEvent(EVENT_STORM_CLOUD, 10s, 12500ms);
+                events.ScheduleEvent(EVENT_STORM_CLOUD, urand(3, 6) * IN_MILLISECONDS);
             }
 
             void UpdateAI(uint32 diff) override
@@ -770,9 +813,8 @@ class npc_hodir_shaman : public CreatureScript
                     switch (eventId)
                     {
                         case EVENT_STORM_CLOUD:
-                            if (Unit* target = SelectTarget(SELECT_TARGET_RANDOM, 0, 100.0f, true))
-                                DoCast(target, SPELL_STORM_CLOUD, true);
-                            events.ScheduleEvent(EVENT_STORM_CLOUD, 15s, 20s);
+                            me->CastSpell(me, SPELL_STORM_CLOUD_SELECTOR, true);
+                            events.ScheduleEvent(EVENT_STORM_CLOUD, urand(30, 35) * IN_MILLISECONDS);
                             break;
                         default:
                             break;
@@ -781,6 +823,7 @@ class npc_hodir_shaman : public CreatureScript
                     if (me->HasUnitState(UNIT_STATE_CASTING))
                         return;
                 }
+
 
                 DoSpellAttackIfReady(SPELL_LAVA_BURST);
             }
@@ -791,9 +834,15 @@ class npc_hodir_shaman : public CreatureScript
                     hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
             }
 
+            bool CanAIAttack(Unit const* target) const override
+            {
+                return (me->GetPositionZ() < 429.0f) == (target->GetPositionZ() < 429.0f);
+            }
+
         private:
             InstanceScript* instance;
             EventMap events;
+            bool delay;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
@@ -853,6 +902,11 @@ class npc_hodir_druid : public CreatureScript
             {
                 if (Creature* hodir = instance->GetCreature(BOSS_HODIR))
                     hodir->AI()->DoAction(ACTION_I_HAVE_THE_COOLEST_FRIENDS);
+            }
+
+            bool CanAIAttack(Unit const* target) const override
+            {
+                return (me->GetPositionZ() < 429.0f) == (target->GetPositionZ() < 429.0f);
             }
 
         private:
@@ -930,6 +984,11 @@ class npc_hodir_mage : public CreatureScript
                 }
 
                 DoSpellAttackIfReady(SPELL_FIREBALL);
+            }
+
+            bool CanAIAttack(Unit const* target) const override
+            {
+                return (me->GetPositionZ() < 429.0f) == (target->GetPositionZ() < 429.0f);
             }
 
             void JustDied(Unit* /*killer*/) override
@@ -1076,6 +1135,139 @@ public:
     }
 };
 
+class spell_hodir_shatter_chest : public SpellScriptLoader
+{
+    public:
+        spell_hodir_shatter_chest() : SpellScriptLoader("spell_hodir_shatter_chest") { }
+    
+        class spell_hodir_shatter_chest_AuraScript : public AuraScript
+        {
+            PrepareAuraScript(spell_hodir_shatter_chest_AuraScript);
+    
+            void HandleOnEffectRemove(AuraEffect const* /*aurEff*/, AuraEffectHandleModes /*mode*/)
+            {
+                // only trigger the spell if the aura expires
+                if (GetTargetApplication()->GetRemoveMode() != AURA_REMOVE_BY_EXPIRE)
+                    return;
+    
+                GetUnitOwner()->ToCreature()->AI()->DoCast(SPELL_SHATTER_CHEST_TRIGGER);
+    
+                Unit* caster = GetCaster();
+                if (InstanceScript* instance = caster->GetInstanceScript())
+                {
+                    if (GameObject* chest = ObjectAccessor::GetGameObject(*caster, instance->GetGuidData(DATA_HODIR_RARE_CACHE)))
+                        chest->SetPhaseMask(2, true);
+                    if (GameObject* chest = ObjectAccessor::GetGameObject(*caster, instance->GetGuidData(DATA_HODIR_RARE_CACHE_HERO)))
+                        chest->SetPhaseMask(2, true);
+                }
+            }
+    
+            void Register()
+            {
+                OnEffectRemove += AuraEffectRemoveFn(spell_hodir_shatter_chest_AuraScript::HandleOnEffectRemove, EFFECT_0, SPELL_AURA_PERIODIC_DUMMY, AURA_EFFECT_HANDLE_REAL);
+            }
+        };
+    
+        AuraScript* GetAuraScript() const override
+        {
+            return new spell_hodir_shatter_chest_AuraScript();
+        }
+};
+
+class spell_storm_cloud_selector : public SpellScriptLoader
+{
+    public:
+        spell_storm_cloud_selector() : SpellScriptLoader("spell_storm_cloud_selector") { }
+    
+        class spell_storm_cloud_selector_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_storm_cloud_selector_SpellScript);
+    
+            void OnHitTarget(SpellEffIndex /*effIndex*/)
+            {
+                if (GetCaster()->GetMap()->GetDifficulty() == RAID_DIFFICULTY_10MAN_NORMAL)
+                    GetCaster()->CastSpell(GetHitUnit(), SPELL_STORM_CLOUD, false);
+                else
+                    GetCaster()->CastSpell(GetHitUnit(), SPELL_STORM_CLOUD_25, false);
+            }
+    
+            void Register() override
+            {
+                OnEffectHitTarget += SpellEffectFn(spell_storm_cloud_selector_SpellScript::OnHitTarget, EFFECT_0, SPELL_EFFECT_DUMMY);
+            }
+        };
+    
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_storm_cloud_selector_SpellScript();
+        }
+};
+
+class spell_storm_cloud : public SpellScriptLoader
+{
+    public:
+        spell_storm_cloud() : SpellScriptLoader("spell_storm_cloud") { }
+    
+        class spell_storm_cloud_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_storm_cloud_SpellScript);
+    
+            void ModAuraStack()
+            {
+                if (Aura* aura = GetHitAura())
+                    aura->SetStackAmount(GetSpellInfo()->StackAmount);
+            }
+    
+            void Register() override
+            {
+                AfterHit += SpellHitFn(spell_storm_cloud_SpellScript::ModAuraStack);
+            }
+        };
+    
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_storm_cloud_SpellScript();
+        }
+};
+
+class spell_storm_cloud_buff : public SpellScriptLoader
+{
+    public:
+        spell_storm_cloud_buff() : SpellScriptLoader("spell_storm_cloud_buff") { }
+    
+        class spell_storm_cloud_buff_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_storm_cloud_buff_SpellScript);
+    
+            void FilterTargets(std::list<WorldObject*>& targets)
+            {
+                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_STORM_CLOUD_BUFF));
+                targets.remove_if(Trinity::UnitAuraCheck(true, SPELL_STORM_CLOUD_BUFF_25));
+            }
+    
+            void OnHit(SpellEffIndex /*effIndex*/)
+            {
+                Aura* aura = GetCaster()->GetAura(SPELL_STORM_CLOUD);
+                if (!aura)
+                    aura = GetCaster()->GetAura(SPELL_STORM_CLOUD_25);
+                if (aura)
+                    aura->ModStackAmount(-1);
+            }
+    
+            void Register() override
+            {
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_storm_cloud_buff_SpellScript::FilterTargets, EFFECT_0, TARGET_UNIT_SRC_AREA_ALLY);
+                OnObjectAreaTargetSelect += SpellObjectAreaTargetSelectFn(spell_storm_cloud_buff_SpellScript::FilterTargets, EFFECT_1, TARGET_UNIT_SRC_AREA_ALLY);
+                OnEffectHitTarget += SpellEffectFn(spell_storm_cloud_buff_SpellScript::OnHit, EFFECT_0, SPELL_EFFECT_APPLY_AURA);
+            }
+        };
+    
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_storm_cloud_buff_SpellScript();
+        }
+};
+
 void AddSC_boss_hodir()
 {
     new boss_hodir();
@@ -1090,4 +1282,8 @@ void AddSC_boss_hodir()
     new npc_flash_freeze();
     new spell_biting_cold();
     new spell_biting_cold_dot();
+    new spell_hodir_shatter_chest();
+    new spell_storm_cloud_selector();
+    new spell_storm_cloud();
+    new spell_storm_cloud_buff();
 }

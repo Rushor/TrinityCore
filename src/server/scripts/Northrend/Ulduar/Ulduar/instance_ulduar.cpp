@@ -1,5 +1,5 @@
 /*
- * This file is part of the TrinityCore Project. See AUTHORS file for Copyright information
+ * Copyright (C) 2008-2019 TrinityCore <https://www.trinitycore.org/>
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -173,7 +173,6 @@ class instance_ulduar : public InstanceMapScript
                 _maxArmorItemLevel = 0;
                 _maxWeaponItemLevel = 0;
                 TeamInInstance = 0;
-                HodirRareCacheData = 0;
                 ColossusData = 0;
                 elderCount = 0;
                 illusion = 0;
@@ -208,15 +207,17 @@ class instance_ulduar : public InstanceMapScript
             ObjectGuid ThorimDarkIronPortcullisGUID;
             ObjectGuid CacheOfStormsGUID;
             ObjectGuid CacheOfStormsHardmodeGUID;
-            ObjectGuid HodirRareCacheGUID;
-            ObjectGuid HodirChestGUID;
             ObjectGuid MimironTramGUID;
+
+            ObjectGuid HodirCacheGUID;
+            ObjectGuid HodirRareCacheGUID;
+            ObjectGuid HodirCacheHeroGUID;
+            ObjectGuid HodirRareCacheHeroGUID;
 
             ObjectGuid BrainRoomDoorGUIDs[3];
 
             // Miscellaneous
             uint32 TeamInInstance;
-            uint32 HodirRareCacheData;
             uint32 ColossusData;
             uint8 elderCount;
             uint8 illusion;
@@ -486,12 +487,24 @@ class instance_ulduar : public InstanceMapScript
                         CacheOfStormsHardmodeGUID = gameObject->GetGUID();
                         break;
                     case GO_HODIR_RARE_CACHE_OF_WINTER_HERO:
+                        HodirRareCacheHeroGUID = gameObject->GetGUID();
+                        if (GetBossState(BOSS_HODIR) == DONE)
+                            gameObject->SetPhaseMask(2, true);
+                        break;
                     case GO_HODIR_RARE_CACHE_OF_WINTER:
                         HodirRareCacheGUID = gameObject->GetGUID();
+                        if (GetBossState(BOSS_HODIR) == DONE)
+                            gameObject->SetPhaseMask(2, true);
                         break;
                     case GO_HODIR_CHEST_HERO:
+                        HodirCacheHeroGUID = gameObject->GetGUID();
+                        if (GetBossState(BOSS_HODIR) == DONE)
+                            gameObject->SetPhaseMask(2, true);
+                        break;
                     case GO_HODIR_CHEST:
-                        HodirChestGUID = gameObject->GetGUID();
+                        HodirCacheGUID = gameObject->GetGUID();
+                        if (GetBossState(BOSS_HODIR) == DONE)
+                            gameObject->SetPhaseMask(2, true);
                         break;
                     case GO_MIMIRON_TRAM:
                         MimironTramGUID = gameObject->GetGUID();
@@ -655,15 +668,7 @@ class instance_ulduar : public InstanceMapScript
                         break;
                     case BOSS_HODIR:
                         if (state == DONE)
-                        {
-                            if (GameObject* HodirRareCache = instance->GetGameObject(HodirRareCacheGUID))
-                                if (GetData(DATA_HODIR_RARE_CACHE))
-                                    HodirRareCache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
-                            if (GameObject* HodirChest = instance->GetGameObject(HodirChestGUID))
-                                HodirChest->SetRespawnTime(HodirChest->GetRespawnDelay());
-
                             instance->SummonCreature(NPC_HODIR_OBSERVATION_RING, ObservationRingKeepersPos[1]);
-                        }
                         break;
                     case BOSS_THORIM:
                         if (state == DONE)
@@ -749,15 +754,6 @@ class instance_ulduar : public InstanceMapScript
                             SaveToDB();
                         }
                         break;
-                    case DATA_HODIR_RARE_CACHE:
-                        HodirRareCacheData = data;
-                        if (!HodirRareCacheData)
-                        {
-                            if (Creature* hodir = GetCreature(BOSS_HODIR))
-                                if (GameObject* gameObject = instance->GetGameObject(HodirRareCacheGUID))
-                                    hodir->RemoveGameObject(gameObject, false);
-                        }
-                        break;
                     case DATA_UNBROKEN:
                         Unbroken = data != 0;
                         break;
@@ -805,6 +801,16 @@ class instance_ulduar : public InstanceMapScript
                     case DATA_BRUNDIR:
                         return AssemblyGUIDs[2];
 
+                    // Hodir
+                    case DATA_HODIR_RARE_CACHE_HERO:
+                        return HodirRareCacheHeroGUID;
+                    case DATA_HODIR_RARE_CACHE:
+                        return HodirRareCacheGUID;
+                    case DATA_HODIR_CHEST_HERO:
+                        return HodirCacheHeroGUID;
+                    case DATA_HODIR_CHEST:
+                        return HodirCacheGUID;
+
                     // Freya
                     case BOSS_BRIGHTLEAF:
                         return ElderGUIDs[0];
@@ -847,8 +853,6 @@ class instance_ulduar : public InstanceMapScript
                 {
                     case DATA_COLOSSUS:
                         return ColossusData;
-                    case DATA_HODIR_RARE_CACHE:
-                        return HodirRareCacheData;
                     case DATA_UNBROKEN:
                         return uint32(Unbroken);
                     case DATA_ILLUSION:
