@@ -24,6 +24,7 @@
 #include "obsidian_sanctum.h"
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
+#include "AchievementMgr.h"
 
 enum Enums
 {
@@ -46,6 +47,7 @@ enum Enums
     SPELL_TAIL_LASH                             = 56910,    // A sweeping tail strike hits all enemies behind the caster, inflicting 3063 to 3937 damage and stunning them for 2 sec.
     SPELL_WILL_OF_SARTHARION                    = 61254,    // Sartharion's presence bolsters the resolve of the Twilight Drakes, increasing their total health by 25%. This effect also increases Sartharion's health by 25%.
     SPELL_LAVA_STRIKE                           = 57571,    // (Real spell cast should be 57578) 57571 then trigger visual missile, then summon Lava Blaze on impact(spell 57572)
+    SPELL_LAVA_STRIKE_DAMAGE                    = 57591,
     SPELL_TWILIGHT_REVENGE                      = 60639,
     NPC_FIRE_CYCLONE                            = 30648,
 
@@ -70,7 +72,13 @@ enum Enums
 
     //using these custom points for dragons start and end
     POINT_ID_INIT                               = 100,
-    POINT_ID_LAND                               = 200
+    POINT_ID_LAND                               = 200,
+
+    // Achievements
+    ACHIEVEMENT_GONNA_GO_WHEN_THE_VOLCANO_BLOWS_10MAN = 2047,
+    ACHIEVEMENT_GONNA_GO_WHEN_THE_VOLCANO_BLOWS_25MAN = 2048,
+
+    ACTION_OBSIDIAN_PLAYER_HIT_BY_FLAME_STRIKE = 1
 };
 
 enum Misc
@@ -142,6 +150,7 @@ public:
             _isBerserk = false;
             _isSoftEnraged = false;
             _isHardEnraged = false;
+            _flameStrikeHited = false;
             drakeCount = 0;
         }
 
@@ -197,6 +206,21 @@ public:
             if (Creature* vesperon = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_VESPERON)))
                 if (vesperon->IsAlive())
                     vesperon->DisappearAndDie();
+
+            if (!_flameStrikeHited)
+                instance->DoCompleteAchievement(RAID_MODE(ACHIEVEMENT_GONNA_GO_WHEN_THE_VOLCANO_BLOWS_10MAN, ACHIEVEMENT_GONNA_GO_WHEN_THE_VOLCANO_BLOWS_25MAN));
+        }
+
+        void DoAction(int32 action) override
+        {
+            switch (action)
+            {
+                case ACTION_OBSIDIAN_PLAYER_HIT_BY_FLAME_STRIKE:
+                    _flameStrikeHited = true;
+                    break;
+                default:
+                    break;
+            }
         }
 
         void KilledUnit(Unit* who) override
@@ -510,6 +534,7 @@ public:
         bool _isSoftEnraged;
         bool _isHardEnraged;
         uint8 drakeCount;
+        bool _flameStrikeHited;
     };
 
     CreatureAI* GetAI(Creature* creature) const override
@@ -518,7 +543,47 @@ public:
     }
 };
 
+// 57591 - Spell Lava Strike Damage
+class spell_sartharion_lava_damage : public SpellScriptLoader
+{
+public:
+    spell_sartharion_lava_damage() : SpellScriptLoader("spell_sartharion_lava_damage") { }
+
+    class spell_sartharion_lava_damage_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_sartharion_lava_damage_SpellScript);
+
+        bool Validate(SpellInfo const* /*spellInfo*/) override
+        {
+            return ValidateSpellInfo({ SPELL_LAVA_STRIKE_DAMAGE });
+        }
+
+        void HandleDummy()
+        {
+            if (!GetHitPlayer())
+                return;
+
+            Player* player = GetHitPlayer();
+
+            if (player->GetInstanceScript())
+                if (Creature* sartharion = ObjectAccessor::GetCreature(*player, player->GetInstanceScript()->GetGuidData(DATA_SARTHARION)))
+                    sartharion->AI()->DoAction(ACTION_OBSIDIAN_PLAYER_HIT_BY_FLAME_STRIKE);
+        }
+
+        void Register() override
+        {
+            OnHit += SpellHitFn(spell_sartharion_lava_damage_SpellScript::HandleDummy);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_sartharion_lava_damage_SpellScript();
+    }
+};
+
 void AddSC_boss_sartharion()
 {
     new boss_sartharion();
+    new spell_sartharion_lava_damage();
 }
