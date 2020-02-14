@@ -150,6 +150,8 @@ enum Achievements
     ACHIEVEMENT_THIS_CACHE_WAS_RARE_25           = 3184,
     ACHIEVEMENT_CHEESE_THE_FREEZE_10             = 2961,
     ACHIEVEMENT_CHEESE_THE_FREEZE_25             = 2962,
+    ACHIEVEMENT_COOLEST_FRIENDS_10               = 2963,
+    ACHIEVEMENT_COOLEST_FRIENDS_25               = 2965,
 };
 
 #define ACHIEVEMENT_CHEESE_THE_FREEZE            RAID_MODE<uint8>(2961, 2962)
@@ -453,6 +455,8 @@ class boss_hodir : public CreatureScript
                     // Other achievements
                     if (cheeseTheFreeze)
                         instance->DoCompleteAchievement(RAID_MODE(ACHIEVEMENT_CHEESE_THE_FREEZE_10, ACHIEVEMENT_CHEESE_THE_FREEZE_25));
+                    if (iHaveTheCoolestFriends)
+                        instance->DoCompleteAchievement(RAID_MODE(ACHIEVEMENT_COOLEST_FRIENDS_10, ACHIEVEMENT_COOLEST_FRIENDS_25));
 
                     _JustDied();
                 }
