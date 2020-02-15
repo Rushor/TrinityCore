@@ -3483,6 +3483,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].SpellClassMask = flag96(685904631, 1151048, 0);
     });
 
+    // Arcing Smash
+    ApplySpellFix({ 38761 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_2_YARDS);
+    });
+
     // Magic Suppression - DK
     ApplySpellFix({ 49224, 49610, 49611 }, [](SpellInfo* spellInfo)
     {
