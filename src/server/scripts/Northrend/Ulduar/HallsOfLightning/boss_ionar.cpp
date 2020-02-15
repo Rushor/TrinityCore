@@ -207,6 +207,7 @@ public:
                     summoned->SetInCombatWith(target);
                     summoned->GetMotionMaster()->Clear();
                     summoned->GetMotionMaster()->MoveFollow(target, 0.0f, 0.0f);
+                    summoned->SetSpeedRate(MOVE_RUN, 0.75f);
                 }
             }
         }
