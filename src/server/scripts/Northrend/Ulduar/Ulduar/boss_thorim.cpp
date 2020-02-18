@@ -478,17 +478,20 @@ class boss_thorim : public CreatureScript
 
                 events.SetPhase(PHASE_NULL);
 
-                // Respawn Mini Bosses
-                for (uint8 i = DATA_RUNIC_COLOSSUS; i <= DATA_RUNE_GIANT; ++i)
-                    if (Creature* miniBoss = ObjectAccessor::GetCreature(*me, instance->GetGuidData(i)))
-                        miniBoss->Respawn(true);
+                if (instance->GetBossState(BOSS_THORIM) != DONE)
+                {
+                    // Respawn Mini Bosses
+                    for (uint8 i = DATA_RUNIC_COLOSSUS; i <= DATA_RUNE_GIANT; ++i)
+                        if (Creature* miniBoss = ObjectAccessor::GetCreature(*me, instance->GetGuidData(i)))
+                            miniBoss->Respawn(true);
 
-                // Spawn Pre Phase Adds
-                for (SummonLocation const& s : PreAddLocations)
-                    me->SummonCreature(s.entry, s.pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
+                    // Spawn Pre Phase Adds
+                    for (SummonLocation const& s : PreAddLocations)
+                        me->SummonCreature(s.entry, s.pos, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 3000);
 
-                if (GameObject* lever = instance->GetGameObject(DATA_THORIM_LEVER))
-                    lever->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                    if (GameObject* lever = instance->GetGameObject(DATA_THORIM_LEVER))
+                        lever->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE);
+                }
 
                 // Remove trigger auras
                 if (Creature* pillar = ObjectAccessor::GetCreature(*me, _activePillarGUID))
