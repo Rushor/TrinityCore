@@ -129,7 +129,7 @@ class boss_ignis : public CreatureScript
             {
                 _slagPotGUID.Clear();
                 _shattered = false;
-                _firstConstructKill = 0;
+                lastShatterMSTime = 0;
             }
 
             void Reset() override
@@ -137,6 +137,13 @@ class boss_ignis : public CreatureScript
                 _Reset();
                 if (Vehicle* _vehicle = me->GetVehicleKit())
                     _vehicle->RemoveAllPassengers();
+
+                //! Respawn construct adds on reset
+                std::list<Creature*> constructList;
+                me->GetCreatureListWithEntryInGrid(constructList, NPC_IRON_CONSTRUCT, 220.0f);
+                for (std::list<Creature*>::const_iterator itr = constructList.begin(); itr != constructList.end(); ++itr)
+                    if ((*itr) && !(*itr)->IsAlive())
+                        (*itr)->Respawn();
 
                 instance->DoStopTimedAchievement(ACHIEVEMENT_TIMED_TYPE_EVENT, ACHIEVEMENT_IGNIS_START_EVENT);
             }
@@ -159,6 +166,13 @@ class boss_ignis : public CreatureScript
             {
                 _JustDied();
                 Talk(SAY_DEATH);
+
+                //! Despawns active construct adds at the end
+                std::list<Creature*> constructList;
+                me->GetCreatureListWithEntryInGrid(constructList, NPC_IRON_CONSTRUCT, 220.0f);
+                for (std::list<Creature*>::const_iterator itr = constructList.begin(); itr != constructList.end(); ++itr)
+                    if ((*itr) && !(*itr)->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE))
+                        (*itr)->DespawnOrUnsummon();
             }
 
             uint32 GetData(uint32 type) const override
@@ -198,10 +212,12 @@ class boss_ignis : public CreatureScript
 
                 me->RemoveAuraFromStack(SPELL_STRENGHT);
                 // Shattered Achievement
-                time_t secondKill = GameTime::GetGameTime();
-                if ((secondKill - _firstConstructKill) < 5)
-                    _shattered = true;
-                _firstConstructKill = secondKill;
+                if (lastShatterMSTime)
+                    if (getMSTimeDiff(lastShatterMSTime, GameTime::GetGameTimeMS()) <= 5000)
+                        _shattered = true;
+
+                lastShatterMSTime = GameTime::GetGameTimeMS();
+
             }
 
             void UpdateAI(uint32 diff) override
@@ -289,7 +305,7 @@ class boss_ignis : public CreatureScript
 
         private:
             ObjectGuid _slagPotGUID;
-            time_t _firstConstructKill;
+            uint32 lastShatterMSTime;
             bool _shattered;
 
         };
@@ -329,8 +345,7 @@ class npc_iron_construct : public CreatureScript
                 {
                     DoCast(SPELL_SHATTER);
                     if (Creature* ignis = _instance->GetCreature(BOSS_IGNIS))
-                        if (ignis->AI())
-                            ignis->AI()->DoAction(ACTION_REMOVE_BUFF);
+                        ignis->AI()->DoAction(ACTION_REMOVE_BUFF);
 
                     me->DespawnOrUnsummon(1000);
                 }
