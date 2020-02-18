@@ -315,16 +315,22 @@ struct boss_thaddius : public BossAI
             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_POSITIVE_CHARGE_APPLY);
             instance->DoRemoveAurasDueToSpellOnPlayers(SPELL_NEGATIVE_CHARGE_APPLY);
 
-            me->DespawnOrUnsummon(0, Seconds(30));
+            me->DespawnOrUnsummon(0, Seconds(3));
 
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_STUNNED);
             me->SetImmuneToPC(true);
             me->setActive(false);
             me->SetFarVisible(false);
             if (Creature* feugen = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_FEUGEN)))
+            {
                 feugen->AI()->DoAction(ACTION_BEGIN_RESET_ENCOUNTER);
+                feugen->Respawn();
+            }               
             if (Creature* stalagg = ObjectAccessor::GetCreature(*me, instance->GetGuidData(DATA_STALAGG)))
+            {               
                 stalagg->AI()->DoAction(ACTION_BEGIN_RESET_ENCOUNTER);
+                stalagg->Respawn();
+            }
         }
 
         void ResetEncounter()
