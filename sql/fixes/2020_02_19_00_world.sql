@@ -1,0 +1,38 @@
+-- 
+-- Hodir - Great Heal - Adds targeting
+DELETE FROM `spell_script_names` WHERE spell_id IN(62809, -62809);
+DELETE FROM `spell_scripts` WHERE id IN(62809, -62809);
+DELETE FROM `spell_linked_spell` WHERE spell_trigger IN(62809, -62809) OR spell_effect IN(62809, -62809);
+DELETE FROM `conditions` WHERE SourceTypeOrReferenceId=13 AND SourceEntry IN(62809);
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 0, 31, 0, 3, 32897, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 0, 36, 0, 0, 0, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 1, 31, 0, 3, 32901, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 1, 36, 0, 0, 0, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 2, 31, 0, 3, 32900, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 2, 36, 0, 0, 0, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 3, 31, 0, 3, 32893, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 3, 36, 0, 0, 0, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 4, 31, 0, 3, 33326, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 4, 36, 0, 0, 0, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 5, 31, 0, 3, 33325, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 5, 36, 0, 0, 0, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 6, 31, 0, 3, 33328, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 6, 36, 0, 0, 0, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 7, 31, 0, 3, 33327, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 7, 36, 0, 0, 0, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 8, 31, 0, 3, 32948, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 8, 36, 0, 0, 0, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 9, 31, 0, 3, 32941, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 9, 36, 0, 0, 0, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 10, 31, 0, 3, 32950, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 10, 36, 0, 0, 0, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 11, 31, 0, 3, 32946, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 11, 36, 0, 0, 0, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 12, 31, 0, 3, 33330, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 12, 36, 0, 0, 0, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 13, 31, 0, 3, 33333, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 13, 36, 0, 0, 0, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 14, 31, 0, 3, 33332, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 14, 36, 0, 0, 0, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 15, 31, 0, 3, 33331, 0, 0, 0, 0, '', 'Hodir - Great Heal');
+INSERT INTO `conditions` VALUES (13, 1, 62809, 0, 15, 36, 0, 0, 0, 0, 0, 0, 0, '', 'Hodir - Great Heal');

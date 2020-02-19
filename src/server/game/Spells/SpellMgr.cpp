@@ -3891,13 +3891,6 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->AttributesEx7 |= SPELL_ATTR7_INTERRUPT_ONLY_NONPLAYER;
     });
 
-    ApplySpellFix({
-        62809 // Great Heal
-        }, [](SpellInfo* spellInfo)
-    {
-        spellInfo->AttributesEx3 |= SPELL_ATTR3_ONLY_TARGET_PLAYERS;
-    });
-
     // Guardian Spirit
     ApplySpellFix({ 47788 }, [](SpellInfo* spellInfo)
     {
