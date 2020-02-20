@@ -714,27 +714,25 @@ int32 ArenaTeam::GetRatingMod(uint32 ownRating, uint32 opponentRating, bool won 
     // 'Chance' calculation - to beat the opponent
     // This is a simulation. Not much info on how it really works
     float chance = GetChanceAgainst(ownRating, opponentRating);
+    float won_mod = (won) ? 1.0f : 0.0f;
 
     // Calculate the rating modification
     float mod;
 
     /// @todo Replace this hack with using the confidence factor (limiting the factor to 2.0f)
-    if (won)
+    if (won && ownRating < 1300)
     {
-        if (ownRating < 1300)
-        {
-            float win_rating_modifier1 = sWorld->getFloatConfig(CONFIG_ARENA_WIN_RATING_MODIFIER_1);
-
-            if (ownRating < 1000)
-                mod =  win_rating_modifier1 * (1.0f - chance);
-            else
-                mod = ((win_rating_modifier1 / 2.0f) + ((win_rating_modifier1 / 2.0f) * (1300.0f - float(ownRating)) / 300.0f)) * (1.0f - chance);
-        }
+        if (ownRating < 1000)
+            mod = 48.0f * (won_mod - chance);
         else
-            mod = sWorld->getFloatConfig(CONFIG_ARENA_WIN_RATING_MODIFIER_2) * (1.0f - chance);
+            mod = (24.0f + (24.0f * (1300.0f - float(ownRating)) / 300.0f)) * (won_mod - chance);
     }
     else
-        mod = sWorld->getFloatConfig(CONFIG_ARENA_LOSE_RATING_MODIFIER) * (-chance);
+        mod = 24.0f * (won_mod - chance);
+
+    // CUSTOM: no points if change is less than 3 for ratings over 2300	
+    mod = (int32)ceil(mod);
+    return ownRating > 2300 && mod <= 2 && mod > 0 ? 0 : mod;
 
     return (int32)ceil(mod);
 }
@@ -862,6 +860,23 @@ void ArenaTeam::MemberWon(Player* player, uint32 againstMatchmakerRating, int32 
             // update personal rating
             int32 mod = GetRatingMod(itr->PersonalRating, againstMatchmakerRating, true);
             itr->ModifyPersonalRating(player, mod, GetType());
+
+            // make sure personal rating can't be highter than team rating	
+
+            // CUSTOM: no points if change is less than 3 for ratings over 2300	
+            if (Stats.Rating <= itr->PersonalRating || (itr->PersonalRating > 2300 && mod <= 2 && mod > 0))
+                mod = 0;
+
+            else if (Stats.Rating > itr->PersonalRating)
+            {
+                int32 tmp = ceil((float(againstMatchmakerRating) / 110));
+                if (itr->PersonalRating >= 2000)
+                    tmp /= 2;
+                mod = std::max(mod, tmp);
+
+                if ((itr->PersonalRating + mod) > Stats.Rating)
+                    mod = Stats.Rating - itr->PersonalRating;
+            }
 
             // update matchmaker rating
             itr->ModifyMatchmakerRating(MatchmakerRatingChange, GetSlot());
