@@ -87,6 +87,15 @@ public:
 
             Initialize();
             instance->SetData(DATA_EGG_EVENT, NOT_STARTED);
+
+            std::list<Creature*> HelperList;
+            me->GetCreatureListWithEntryInGrid(HelperList, NPC_BLACKWING_DRAGON,     500.0f);
+            me->GetCreatureListWithEntryInGrid(HelperList, NPC_BLACKWING_TASKMASTER, 500.0f);
+            me->GetCreatureListWithEntryInGrid(HelperList, NPC_BLACKWING_LEGIONAIRE, 500.0f);
+            me->GetCreatureListWithEntryInGrid(HelperList, NPC_BLACKWING_WARLOCK,    500.0f);
+            if (!HelperList.empty())
+                for (std::list<Creature*>::iterator itr = HelperList.begin(); itr != HelperList.end(); itr++)
+                    (*itr)->DespawnOrUnsummon();
         }
 
         void JustDied(Unit* /*killer*/) override
@@ -95,6 +104,15 @@ public:
             Talk(SAY_DEATH);
 
             instance->SetData(DATA_EGG_EVENT, NOT_STARTED);
+
+            std::list<Creature*> HelperList;
+            me->GetCreatureListWithEntryInGrid(HelperList, NPC_BLACKWING_DRAGON, 500.0f);
+            me->GetCreatureListWithEntryInGrid(HelperList, NPC_BLACKWING_TASKMASTER, 500.0f);
+            me->GetCreatureListWithEntryInGrid(HelperList, NPC_BLACKWING_LEGIONAIRE, 500.0f);
+            me->GetCreatureListWithEntryInGrid(HelperList, NPC_BLACKWING_WARLOCK, 500.0f);
+            if (!HelperList.empty())
+                for (std::list<Creature*>::iterator itr = HelperList.begin(); itr != HelperList.end(); itr++)
+                    (*itr)->DespawnOrUnsummon();
         }
 
         void DoChangePhase()

@@ -87,19 +87,6 @@ public:
         void OnCreatureCreate(Creature* creature) override
         {
             InstanceScript::OnCreatureCreate(creature);
-
-            switch (creature->GetEntry())
-            {
-                case NPC_BLACKWING_DRAGON:
-                case NPC_BLACKWING_TASKMASTER:
-                case NPC_BLACKWING_LEGIONAIRE:
-                case NPC_BLACKWING_WARLOCK:
-                    if (Creature* razor = GetCreature(DATA_RAZORGORE_THE_UNTAMED))
-                        razor->AI()->JustSummoned(creature);
-                    break;
-                default:
-                    break;
-            }
         }
 
         void OnGameObjectCreate(GameObject* go) override
