@@ -859,7 +859,6 @@ void ArenaTeam::MemberWon(Player* player, uint32 againstMatchmakerRating, int32 
         {
             // update personal rating
             int32 mod = GetRatingMod(itr->PersonalRating, againstMatchmakerRating, true);
-            itr->ModifyPersonalRating(player, mod, GetType());
 
             // make sure personal rating can't be highter than team rating	
 
@@ -877,6 +876,8 @@ void ArenaTeam::MemberWon(Player* player, uint32 againstMatchmakerRating, int32 
                 if ((itr->PersonalRating + mod) > Stats.Rating)
                     mod = Stats.Rating - itr->PersonalRating;
             }
+
+            itr->ModifyPersonalRating(player, mod, GetType());
 
             // update matchmaker rating
             itr->ModifyMatchmakerRating(MatchmakerRatingChange, GetSlot());
