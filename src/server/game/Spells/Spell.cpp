@@ -5984,6 +5984,12 @@ SpellCastResult Spell::CheckPetCast(Unit* target)
     if (!target && m_targets.GetUnitTarget())
         target = m_targets.GetUnitTarget();
 
+    if (!target && m_spellInfo->Id == 58913 /*SPELL_SOUL_CLEAVE*/)
+    {
+        if (m_caster->ToCreature())
+            target = m_caster->ToCreature()->SelectNearestTarget(5.0f, false);
+    }
+
     if (m_spellInfo->NeedsExplicitUnitTarget())
     {
         if (!target)
