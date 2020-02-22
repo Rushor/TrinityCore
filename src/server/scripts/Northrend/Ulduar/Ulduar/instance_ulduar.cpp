@@ -533,6 +533,14 @@ class instance_ulduar : public InstanceMapScript
                         if (_algalonSummoned)
                             gameObject->SetGoState(GO_STATE_ACTIVE);
                         break;
+                    case GO_GOLGCLOVER:
+                    case GO_TALANDRAS_ROSE:
+                    case GO_LICHBOOM:
+                    case GO_FROST_LOTUS:
+                    case GO_ADDERS_TONGUE:
+                        if (GetBossState(BOSS_FREYA) == DONE)
+                            gameObject->RemoveFromWorld();
+                        break;
                     default:
                         break;
                 }

@@ -25,6 +25,8 @@
 #include "SpellScript.h"
 #include "TemporarySummon.h"
 #include "ulduar.h"
+#include "GameObject.h"
+#include "GameObjectAI.h"
 
 enum FreyaYells
 {
@@ -624,6 +626,17 @@ class boss_freya : public CreatureScript
                 me->SetFaction(FACTION_FRIENDLY);
                 me->DespawnOrUnsummon(7500);
                 me->CastSpell(me, SPELL_KNOCK_ON_WOOD_CREDIT, true);
+
+                // Remove Herbs
+                std::list<GameObject*> HerbList;
+                GetGameObjectListWithEntryInGrid(HerbList, me, GO_GOLGCLOVER, 1000.0f);
+                GetGameObjectListWithEntryInGrid(HerbList, me, GO_TALANDRAS_ROSE, 1000.0f);
+                GetGameObjectListWithEntryInGrid(HerbList, me, GO_LICHBOOM, 1000.0f);
+                GetGameObjectListWithEntryInGrid(HerbList, me, GO_FROST_LOTUS, 1000.0f);
+                GetGameObjectListWithEntryInGrid(HerbList, me, GO_ADDERS_TONGUE, 1000.0f);
+                for (std::list<GameObject*>::const_iterator itr = HerbList.begin(); itr != HerbList.end(); ++itr)
+                    (*itr)->RemoveFromWorld();
+
                 _JustDied();
 
                 for (uint8 n = 0; n < 3; ++n)

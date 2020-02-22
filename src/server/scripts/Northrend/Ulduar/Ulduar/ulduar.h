@@ -322,6 +322,13 @@ enum UlduarGameObjects
     GO_DOODAD_UL_ULDUAR_TRAPDOOR_03         = 194253,
     GO_GIFT_OF_THE_OBSERVER_10              = 194821,
     GO_GIFT_OF_THE_OBSERVER_25              = 194822,
+
+    // Herb Misc
+    GO_GOLGCLOVER                           = 189973,
+    GO_TALANDRAS_ROSE                       = 190170,
+    GO_LICHBOOM                             = 190171,
+    GO_FROST_LOTUS                          = 190176,
+    GO_ADDERS_TONGUE                        = 191019,
 };
 
 enum UUEventIds
