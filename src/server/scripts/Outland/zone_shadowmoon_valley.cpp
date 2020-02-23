@@ -760,6 +760,34 @@ struct TorlothCinematic
     uint32 creature, Timer;
 };
 
+enum IllidanTexts
+{
+    SAY_WAVE_1            = 7,
+    SAY_WAVE_2            = 8,
+    SAY_WAVE_3            = 9,
+    SAY_WAVE_4            = 10,
+                          
+    SAY_TORLOTH_1         = 0,
+    SAY_TORLOTH_2         = 1,
+
+    SAY_MARCUS_AURALION_0 = 0
+};
+
+enum IllidanCreatures
+{
+    NPC_MARCUS_AURALION   = 22073
+};
+
+enum IllidanActions
+{
+    ACTION_RESET_EVENT    = 1
+};
+
+enum CrystalQuestObjects
+{
+    GO_CRYSTAL_PRISON     = 185126
+};
+
 // Creature 0 - Torloth, 1 - Illidan
 static TorlothCinematic TorlothAnim[]=
 {
@@ -875,6 +903,7 @@ public:
             me->AddUnitState(UNIT_STATE_ROOT);
             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             me->SetTarget(ObjectGuid::Empty);
+            me->setActive(true);
         }
 
         void JustEngagedWith(Unit* /*who*/) override { }
@@ -899,6 +928,7 @@ public:
                 me->SetStandState(UNIT_STAND_STATE_KNEEL);
                 break;
             case 3:
+                Talk(SAY_TORLOTH_1);
                 me->SetStandState(UNIT_STAND_STATE_STAND);
                 break;
             case 5:
@@ -912,12 +942,15 @@ public:
             case 6:
                 if (Player* AggroTarget = ObjectAccessor::GetPlayer(*me, AggroTargetGUID))
                 {
+                    Talk(SAY_TORLOTH_2);
                     me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     me->ClearUnitState(UNIT_STATE_ROOT);
 
-                    float x, y, z;
-                    AggroTarget->GetPosition(x, y, z);
-                    me->GetMotionMaster()->MovePoint(0, x, y, z);
+                    if (Player* AggroTarget = ObjectAccessor::GetPlayer(*me, AggroTargetGUID))
+                    {
+                        AddThreat(AggroTarget, 1);
+                        AttackStart(AggroTarget);
+                    }
                 }
                 break;
             }
@@ -990,7 +1023,10 @@ public:
             }
 
             if (Creature* LordIllidan = (ObjectAccessor::GetCreature(*me, LordIllidanGUID)))
+            {
                 LordIllidan->AI()->EnterEvadeMode();
+                LordIllidan->AI()->DoAction(ACTION_RESET_EVENT);
+            }
         }
     };
 };
@@ -1049,6 +1085,26 @@ public:
             me->SetVisible(false);
         }
 
+        void DoAction(int32 actionId) override
+        {
+            if (actionId == ACTION_RESET_EVENT)
+            {
+                PlayerGUID.Clear();
+
+                WaveTimer = 10000;
+                AnnounceTimer = 7000;
+                LiveCount = 0;
+                WaveCount = 0;
+
+                EventStarted = false;
+                Announced = false;
+                Failed = false;
+
+                if (GameObject* crystal = me->FindNearestGameObject(GO_CRYSTAL_PRISON, 200.0f))
+                    crystal->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND | GO_FLAG_NOT_SELECTABLE);
+            }
+        }
+
         void JustEngagedWith(Unit* /*who*/) override { }
         void MoveInLineOfSight(Unit* /*who*/) override { }
 
@@ -1083,7 +1139,7 @@ public:
                     }
                     ++GroupMemberCount;
 
-                    if (GroupMember->isDead())
+                    if (GroupMember->isDead() || !GroupMember->IsWithinDistInMap(me, EVENT_AREA_RADIUS))
                         ++DeadMemberCount;
                 }
 
@@ -1132,6 +1188,14 @@ public:
 
                 if (WaveTimer <= diff)
                 {
+                    if (WaveCount == 0)
+                        Talk(SAY_WAVE_1);
+                    else if (WaveCount == 1)
+                        Talk(SAY_WAVE_2);
+                    else if (WaveCount == 2)
+                        Talk(SAY_WAVE_3);
+                    else if (WaveCount == 3)
+                        Talk(SAY_WAVE_4);
                     SummonNextWave();
                 }
                 else
@@ -1140,7 +1204,10 @@ public:
             CheckEventFail();
 
             if (Failed)
+            {
                 EnterEvadeMode();
+                DoAction(ACTION_RESET_EVENT);
+            }               
         }
     };
 };
@@ -1353,13 +1420,21 @@ public:
         {
             if (quest->GetQuestId() == QUEST_BATTLE_OF_THE_CRIMSON_WATCH)
             {
-                Creature* illidan = player->FindNearestCreature(22083, 50);
-                if (illidan && !ENSURE_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, illidan->AI())->EventStarted)
+                if (Creature* auralion = player->FindNearestCreature(NPC_MARCUS_AURALION, 50.0f))
+                    auralion->AI()->Talk(SAY_MARCUS_AURALION_0);
+
+                if (Creature* illidan = player->FindNearestCreature(22083, 50.0f))
                 {
-                    ENSURE_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, illidan->AI())->PlayerGUID = player->GetGUID();
-                    ENSURE_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, illidan->AI())->LiveCount = 0;
-                    ENSURE_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, illidan->AI())->EventStarted = true;
+                    if (illidan && !ENSURE_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, illidan->AI())->EventStarted)
+                    {
+                        ENSURE_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, illidan->AI())->PlayerGUID = player->GetGUID();
+                        ENSURE_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, illidan->AI())->LiveCount = 0;
+                        ENSURE_AI(npc_lord_illidan_stormrage::npc_lord_illidan_stormrageAI, illidan->AI())->EventStarted = true;
+                    }
                 }
+
+                // Make object not interactable for other player during the event
+                me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_INTERACT_COND | GO_FLAG_NOT_SELECTABLE);
             }
         }
     };
