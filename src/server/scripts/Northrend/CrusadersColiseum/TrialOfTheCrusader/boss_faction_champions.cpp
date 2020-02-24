@@ -763,11 +763,11 @@ class npc_toc_druid : public CreatureScript
             void Reset() override
             {
                 boss_faction_championsAI::Reset();
-                //events.ScheduleEvent(EVENT_LIFEBLOOM, 5s, 15s);
+                events.ScheduleEvent(EVENT_LIFEBLOOM, 5s, 15s);
                 events.ScheduleEvent(EVENT_NOURISH, 5s, 15s);
-                //events.ScheduleEvent(EVENT_REGROWTH, 5s, 15s);
+                events.ScheduleEvent(EVENT_REGROWTH, 5s, 15s);
                 events.ScheduleEvent(EVENT_REJUVENATION, 5s, 15s);
-                //events.ScheduleEvent(EVENT_TRANQUILITY, 5s, 20s);
+                events.ScheduleEvent(EVENT_TRANQUILITY, 5s, 20s);
                 events.ScheduleEvent(EVENT_HEAL_BARKSKIN, 15s, 25s);
                 events.ScheduleEvent(EVENT_THORNS, 2s);
                 events.ScheduleEvent(EVENT_NATURE_GRASP, 3s, 20s);
@@ -856,10 +856,10 @@ class npc_toc_shaman : public CreatureScript
             void Reset() override
             {
                 boss_faction_championsAI::Reset();
-                //events.ScheduleEvent(EVENT_HEALING_WAVE, 5s, 10s);
+                events.ScheduleEvent(EVENT_HEALING_WAVE, 5s, 10s);
                 events.ScheduleEvent(EVENT_RIPTIDE, 5s, 20s);
                 events.ScheduleEvent(EVENT_SPIRIT_CLEANSE, 15s, 25s);
-                //events.ScheduleEvent(EVENT_HEAL_BLOODLUST_HEROISM, 20s);
+                events.ScheduleEvent(EVENT_HEAL_BLOODLUST_HEROISM, 20s);
                 events.ScheduleEvent(EVENT_HEX, 5s, 30s);
                 events.ScheduleEvent(EVENT_EARTH_SHIELD, 1s);
                 events.ScheduleEvent(EVENT_HEAL_EARTH_SHOCK, 5s, 30s);
@@ -952,8 +952,8 @@ class npc_toc_paladin : public CreatureScript
                 events.ScheduleEvent(EVENT_HAND_OF_FREEDOM, 10s, 20s);
                 events.ScheduleEvent(EVENT_HEAL_DIVINE_SHIELD, 20s);
                 events.ScheduleEvent(EVENT_CLEANSE, 20s, 30s);
-                //events.ScheduleEvent(EVENT_FLASH_OF_LIGHT, 5s, 10s);
-                //events.ScheduleEvent(EVENT_HOLY_LIGHT, 10s, 15s);
+                events.ScheduleEvent(EVENT_FLASH_OF_LIGHT, 5s, 10s);
+                events.ScheduleEvent(EVENT_HOLY_LIGHT, 10s, 15s);
                 events.ScheduleEvent(EVENT_HOLY_SHOCK, 10s, 15s);
                 events.ScheduleEvent(EVENT_HEAL_HAND_OF_PROTECTION, 30s, 60s);
                 events.ScheduleEvent(EVENT_HAMMER_OF_JUSTICE, 10s, 30s);
@@ -1055,11 +1055,11 @@ class npc_toc_priest : public CreatureScript
                 boss_faction_championsAI::Reset();
                 events.ScheduleEvent(EVENT_RENEW, 3s, 10s);
                 events.ScheduleEvent(EVENT_SHIELD, 5s, 15s);
-                //events.ScheduleEvent(EVENT_FLASH_HEAL, 5s, 10s);
+                events.ScheduleEvent(EVENT_FLASH_HEAL, 5s, 10s);
                 events.ScheduleEvent(EVENT_HEAL_DISPEL, 10s, 20s);
                 events.ScheduleEvent(EVENT_HEAL_PSYCHIC_SCREAM, 10s, 30s);
                 events.ScheduleEvent(EVENT_MANA_BURN, 15s, 30s);
-                //events.ScheduleEvent(EVENT_PENANCE, 10s, 20s);
+                events.ScheduleEvent(EVENT_PENANCE, 10s, 20s);
                 SetEquipmentSlots(false, 49992, EQUIP_NO_CHANGE, EQUIP_NO_CHANGE);
             }
 
