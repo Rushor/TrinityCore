@@ -3927,6 +3927,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->InterruptFlags &= ~AURA_INTERRUPT_FLAG_CAST;
     });
 
+    // Magic Rooster
+    ApplySpellFix({ 65917 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Attributes &= ~SPELL_ATTR0_CASTABLE_WHILE_MOUNTED;
+    });
+
     ApplySpellFix({
         42767, // Sic'em
         43092  // Stop the Ascension!: Halfdan's Soul Destruction

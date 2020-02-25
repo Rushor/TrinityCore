@@ -4398,73 +4398,6 @@ class spell_gen_cannon_blast : public SpellScript
     }
 };
 
-enum MagicRoosterSpells
-{
-    SPELL_MAGIC_ROOSTER_NORMAL       = 66122,
-    SPELL_MAGIC_ROOSTER_DRAENEI_MALE = 66123,
-    SPELL_MAGIC_ROOSTER_TAUREN_MALE  = 66124,
-    SPELL_DISMOUNT                   = 61286
-};
-
-class spell_gen_magic_rooster : public SpellScriptLoader
-{
-    public:
-        spell_gen_magic_rooster() : SpellScriptLoader("spell_gen_magic_rooster") { }
-    
-        class spell_gen_magic_rooster_SpellScript : public SpellScript
-        {
-            PrepareSpellScript(spell_gen_magic_rooster_SpellScript);
-    
-            void ClearMountedSate()
-            {
-                GetCaster()->ToPlayer()->Dismount();
-            }
-    
-            void HandleScript(SpellEffIndex effIndex)
-            {
-                PreventHitDefaultEffect(effIndex);
-                if (Player* target = GetHitPlayer())
-                {
-                    uint32 petNumber = target->GetTemporaryUnsummonedPetNumber();
-                    target->SetTemporaryUnsummonedPetNumber(0);
-    
-                    // prevent client crashes from stacking mounts
-                    target->RemoveAurasByType(SPELL_AURA_MOUNTED);
-    
-                    uint32 spellId = SPELL_MAGIC_ROOSTER_NORMAL;
-                    switch (target->GetRace())
-                    {
-                        case RACE_DRAENEI:
-                            if (target->GetGender() == GENDER_MALE)
-                                spellId = SPELL_MAGIC_ROOSTER_DRAENEI_MALE;
-                            break;
-                        case RACE_TAUREN:
-                            if (target->GetGender() == GENDER_MALE)
-                                spellId = SPELL_MAGIC_ROOSTER_TAUREN_MALE;
-                            break;
-                        default:
-                            break;
-                    }
-    
-                    target->CastSpell(target, spellId, true);
-                    if (petNumber)
-                        target->SetTemporaryUnsummonedPetNumber(petNumber);
-                }
-            }
-    
-            void Register() override
-            {
-                BeforeCast += SpellCastFn(spell_gen_magic_rooster_SpellScript::ClearMountedSate);
-                OnEffectHitTarget += SpellEffectFn(spell_gen_magic_rooster_SpellScript::HandleScript, EFFECT_2, SPELL_EFFECT_SCRIPT_EFFECT);
-            }
-        };
-    
-        SpellScript* GetSpellScript() const override
-        {
-            return new spell_gen_magic_rooster_SpellScript();
-        }
-};
-
 void AddSC_generic_spell_scripts()
 {
     RegisterAuraScript(spell_gen_absorb0_hitlimit1);
@@ -4594,5 +4527,4 @@ void AddSC_generic_spell_scripts()
     RegisterSpellScript(spell_freezing_circle);
     RegisterSpellScript(spell_gen_charmed_unit_spell_cooldown);
     RegisterSpellScript(spell_gen_cannon_blast);
-    new spell_gen_magic_rooster();
 }
