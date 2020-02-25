@@ -4285,6 +4285,45 @@ class spell_item_eggnog : public SpellScript
     }
 };
 
+enum MiscShrinkSpells
+{
+    SPELL_PYGMY_AURA_1 = 53805,
+    SPELL_PYGMY_AURA_2 = 53806,
+
+};
+class spell_item_baby_spice : public SpellScriptLoader
+{
+    public:
+        spell_item_baby_spice() : SpellScriptLoader("spell_item_baby_spice") { }
+    
+        class spell_item_baby_spice_SpellScript : public SpellScript
+        {
+            PrepareSpellScript(spell_item_baby_spice_SpellScript);
+    
+            SpellCastResult CheckCast()
+            {
+                Unit* caster = GetCaster();
+                if (Unit* target = GetExplTargetUnit())
+                {
+                    if (target->HasAura(SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED1) || target->HasAura(SPELL_PYGMY_AURA_1) || target->HasAura(SPELL_PYGMY_AURA_2))
+                        return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+                }
+
+                return SPELL_CAST_OK;
+            }
+    
+            void Register() override
+            {
+                OnCheckCast += SpellCheckCastFn(spell_item_baby_spice_SpellScript::CheckCast);
+            }
+        };
+    
+        SpellScript* GetSpellScript() const override
+        {
+            return new spell_item_baby_spice_SpellScript();
+        }
+};
+
 void AddSC_item_spell_scripts()
 {
     // 23074 Arcanite Dragonling
@@ -4416,4 +4455,5 @@ void AddSC_item_spell_scripts()
     RegisterSpellScript(spell_item_mad_alchemists_potion);
     RegisterSpellScript(spell_item_crazy_alchemists_potion);
     RegisterSpellScript(spell_item_eggnog);
+    new spell_item_baby_spice();
 }
