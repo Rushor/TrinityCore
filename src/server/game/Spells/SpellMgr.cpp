@@ -3862,6 +3862,12 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Attributes |= SPELL_ATTR0_PASSIVE;
     });
 
+    // Baby Spice
+    ApplySpellFix({ 60122 }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Attributes |= SPELL_ATTR0_CANT_USED_IN_COMBAT;
+    });
+
     ApplySpellFix({
         17364, // Stormstrike
         48278, // Paralyze
