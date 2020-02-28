@@ -623,7 +623,35 @@ class npc_frost_sphere : public CreatureScript
 
         struct npc_frost_sphereAI : public ScriptedAI
         {
-            npc_frost_sphereAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_frost_sphereAI(Creature* creature) : ScriptedAI(creature)
+            {
+                // mind sear
+                me->ApplySpellImmune(0, IMMUNITY_ID, 49821, true);
+                me->ApplySpellImmune(0, IMMUNITY_ID, 53022, true);
+                // ground aoe
+                me->ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_PERSISTENT_AREA_AURA, true);
+                // starfall
+                me->ApplySpellImmune(0, IMMUNITY_ID, 50288, true);
+                me->ApplySpellImmune(0, IMMUNITY_ID, 50294, true);
+                me->ApplySpellImmune(0, IMMUNITY_ID, 53188, true);
+                me->ApplySpellImmune(0, IMMUNITY_ID, 53189, true);
+                me->ApplySpellImmune(0, IMMUNITY_ID, 53190, true);
+                me->ApplySpellImmune(0, IMMUNITY_ID, 53191, true);
+                me->ApplySpellImmune(0, IMMUNITY_ID, 53194, true);
+                me->ApplySpellImmune(0, IMMUNITY_ID, 53195, true);
+
+                uint32 ID = 0;
+                if (me->GetMap())
+                    switch (me->GetMap()->GetDifficulty())
+                    {
+                        case RAID_DIFFICULTY_10MAN_NORMAL: ID = 66118; break;
+                        case RAID_DIFFICULTY_25MAN_NORMAL: ID = 67630; break;
+                        case RAID_DIFFICULTY_10MAN_HEROIC: ID = 68646; break;
+                        case RAID_DIFFICULTY_25MAN_HEROIC: ID = 68647; break;
+                    }
+                if (ID)
+                    me->ApplySpellImmune(0, IMMUNITY_ID, ID, true);
+            }
 
             void Reset() override
             {
@@ -631,6 +659,11 @@ class npc_frost_sphere : public CreatureScript
                 DoCast(SPELL_FROST_SPHERE);
                 me->SetDisplayId(me->GetCreatureTemplate()->Modelid2);
                 me->GetMotionMaster()->MoveRandom(20.0f);
+
+                fallToGround = false;
+                fallToGroundEffect = false;
+                fallToGroundEffectTimer = 1600;
+              
             }
 
             void DamageTaken(Unit* /*who*/, uint32& damage) override
@@ -638,13 +671,17 @@ class npc_frost_sphere : public CreatureScript
                 if (me->GetHealth() <= damage)
                 {
                     damage = 0;
-                    float floorZ = me->GetPositionZ();
+
+                    if (fallToGroundEffect || fallToGround)
+                        return;
+
+                    float floorZ = me->GetMap()->GetHeight(me->GetPhaseMask(), me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
                     me->UpdateGroundPositionZ(me->GetPositionX(), me->GetPositionY(), floorZ);
                     if (fabs(me->GetPositionZ() - floorZ) < 0.1f)
                     {
                         // we are close to the ground
                         me->GetMotionMaster()->MoveIdle();
-                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_REMOVE_CLIENT_CONTROL);
                         me->RemoveAurasDueToSpell(SPELL_FROST_SPHERE);
                         DoCast(SPELL_PERMAFROST_MODEL);
                         DoCast(SPELL_PERMAFROST);
@@ -657,7 +694,7 @@ class npc_frost_sphere : public CreatureScript
                         me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                         //At hit the ground
                         me->HandleEmoteCommand(EMOTE_ONESHOT_FLYDEATH);
-                        me->GetMotionMaster()->MoveFall(POINT_FALL_GROUND);
+                        fallToGround = true;
                     }
                 }
             }
@@ -670,16 +707,50 @@ class npc_frost_sphere : public CreatureScript
                 switch (pointId)
                 {
                     case POINT_FALL_GROUND:
-                        me->RemoveAurasDueToSpell(SPELL_FROST_SPHERE);
-                        DoCast(SPELL_PERMAFROST_MODEL);
-                        DoCast(SPELL_PERMAFROST_VISUAL);
-                        DoCast(SPELL_PERMAFROST);
+                        me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_REMOVE_CLIENT_CONTROL);
                         me->SetObjectScale(2.0f);
                         break;
                     default:
                         break;
                 }
             }
+
+            void UpdateAI(uint32 diff)
+            {
+                if (fallToGround)
+                {
+                    me->GetMotionMaster()->MoveFall(POINT_FALL_GROUND);
+                    fallToGround = false;
+                    fallToGroundEffect = true;
+                }
+                if (fallToGroundEffect)
+                {
+                    float floorZ = me->GetMap()->GetHeight(me->GetPhaseMask(), me->GetPositionX(), me->GetPositionY(), me->GetPositionZ());
+                    if (fallToGroundEffectTimer <= diff)
+                    {
+                        if (fabs(me->GetPositionZ() - floorZ) < 1.0f)
+                        {
+                            me->RemoveAurasDueToSpell(SPELL_FROST_SPHERE);
+                            DoCast(SPELL_PERMAFROST_MODEL);
+                            DoCast(SPELL_PERMAFROST_VISUAL);
+                            DoCast(SPELL_PERMAFROST);
+                            fallToGroundEffect = false;
+                        }
+                        else
+                        {
+                            me->GetMotionMaster()->MoveFall(POINT_FALL_GROUND);
+                            fallToGround = true;
+                            fallToGroundEffect = false;
+                        }
+                    }
+                    else fallToGroundEffectTimer -= diff;
+                }
+            }
+
+            private:
+                bool fallToGround;
+                bool fallToGroundEffect;
+                uint32 fallToGroundEffectTimer;
         };
 
         CreatureAI* GetAI(Creature* creature) const override
