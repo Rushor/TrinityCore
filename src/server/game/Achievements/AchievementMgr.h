@@ -162,9 +162,9 @@ struct AchievementCriteriaData
         // ACHIEVEMENT_CRITERIA_DATA_TYPE_BG_LOSS_TEAM_SCORE= 17
         struct
         {
-            uint32 min_score;
-            uint32 max_score;
-        } bg_loss_team_score;
+            uint32 win_score;
+            uint32 loose_score;
+        } bg_team_score;
         // ACHIEVEMENT_CRITERIA_DATA_TYPE_INSTANCE_SCRIPT   = 18 (no data)
         // ACHIEVEMENT_CRITERIA_DATA_TYPE_S_EQUIPPED_ITEM   = 19
         struct

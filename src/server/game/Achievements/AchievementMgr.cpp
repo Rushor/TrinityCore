@@ -396,8 +396,9 @@ bool AchievementCriteriaData::Meets(uint32 criteria_id, Player const* source, Wo
             if (!bg)
                 return false;
 
-            uint32 score = bg->GetTeamScore(source->GetTeamId() == TEAM_ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE);
-            return score >= bg_loss_team_score.min_score && score <= bg_loss_team_score.max_score;
+            uint32 loosescore = bg->GetTeamScore(source->GetTeamId() == TEAM_ALLIANCE ? TEAM_HORDE : TEAM_ALLIANCE);
+            uint32 winscore = bg->GetTeamScore(source->GetTeamId() == TEAM_ALLIANCE ? TEAM_ALLIANCE : TEAM_HORDE);
+            return loosescore == bg_team_score.loose_score && winscore == bg_team_score.win_score;
         }
         case ACHIEVEMENT_CRITERIA_DATA_TYPE_INSTANCE_SCRIPT:
         {
