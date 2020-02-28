@@ -960,6 +960,11 @@ struct boss_icehowl : public boss_northrend_beastsAI
                 events.ScheduleEvent(EVENT_ENGAGE, 3s);
                 break;
             case POINT_MIDDLE:
+                me->GetMotionMaster()->Clear();
+                me->AttackStop();
+                me->StopMoving();
+                me->GetMotionMaster()->MoveIdle();
+                me->SetReactState(REACT_PASSIVE);
                 DoCastSelf(SPELL_MASSIVE_CRASH);
                 events.ScheduleEvent(EVENT_SELECT_CHARGE_TARGET, 4s);
                 break;
@@ -968,6 +973,9 @@ struct boss_icehowl : public boss_northrend_beastsAI
                 events.SetPhase(PHASE_COMBAT);
                 RescheduleTasks();
                 me->SetReactState(REACT_AGGRESSIVE);
+                me->GetMotionMaster()->Clear();
+                me->GetMotionMaster()->MoveChase(me->GetVictim());
+                AttackStart(me->GetVictim());
                 DoCastSelf(SPELL_TRAMPLE);
                 break;
             default:
@@ -1002,8 +1010,11 @@ struct boss_icehowl : public boss_northrend_beastsAI
                 DoZoneInCombat();
                 break;
             case EVENT_MASSIVE_CRASH:
-                me->SetReactState(REACT_PASSIVE);
+                me->GetMotionMaster()->Clear();
                 me->AttackStop();
+                me->StopMoving();
+                me->GetMotionMaster()->MoveIdle();
+                me->SetReactState(REACT_PASSIVE);
                 events.SetPhase(PHASE_CHARGE);
                 me->GetMotionMaster()->MoveJump(ToCCommonLoc[1], 20.0f, 20.0f, POINT_MIDDLE);
                 break;
