@@ -23,6 +23,7 @@
 #include <map>
 #include <memory>
 #include <set>
+#include "Player.h"
 
 #define OUT_SAVE_INST_DATA             TC_LOG_DEBUG("scripts", "Saving Instance Data for Instance %s (Map %d, Instance Id %d)", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
 #define OUT_SAVE_INST_DATA_COMPLETE    TC_LOG_DEBUG("scripts", "Saving Instance Data for Instance %s (Map %d, Instance Id %d) completed.", instance->GetMapName(), instance->GetId(), instance->GetInstanceId())
@@ -180,6 +181,9 @@ class TC_GAME_API InstanceScript : public ZoneScript
         // Used by the map's CannotEnter function.
         // This is to prevent players from entering during boss encounters.
         virtual bool IsEncounterInProgress() const;
+
+        //Called when a player equip an item
+        virtual void OnPlayerEquipItem(Player* player, Item* item, EquipmentSlots slot) {}
 
         // Called when a creature/gameobject is added to map or removed from map.
         // Insert/Remove objectguid to dynamic guid store

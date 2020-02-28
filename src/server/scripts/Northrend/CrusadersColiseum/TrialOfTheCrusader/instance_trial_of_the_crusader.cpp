@@ -26,6 +26,8 @@
 #include "ScriptedCreature.h"
 #include "TemporarySummon.h"
 #include "trial_of_the_crusader.h"
+#include "Player.h"
+#include "Item.h"
 
  // ToDo: Remove magic numbers of events
 
@@ -120,6 +122,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 TributeToImmortalityEligible = true;
                 NeedSave = false;
                 CrusadersSpecialState = false;
+                HasOnlyAllowedItems = instance->IsHeroic() && !instance->Is25ManRaid() ? true : false;
             }
 
             void OnPlayerEnter(Player* player) override
@@ -248,40 +251,31 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                                 if (instance->GetSpawnMode() == RAID_DIFFICULTY_10MAN_HEROIC)
                                 {
                                     if (TrialCounter >= 50)
-                                        tributeChest = GO_TRIBUTE_CHEST_10H_99;
-                                    else
                                     {
-                                        if (TrialCounter >= 45)
-                                            tributeChest = GO_TRIBUTE_CHEST_10H_50;
-                                        else
-                                        {
-                                            if (TrialCounter >= 25)
-                                                tributeChest = GO_TRIBUTE_CHEST_10H_45;
-                                            else
-                                                tributeChest = GO_TRIBUTE_CHEST_10H_25;
-                                        }
+                                        CheckForItemLevel();
+                                        tributeChest = GO_TRIBUTE_CHEST_10H_99;
                                     }
+                                    else if (TrialCounter >= 45)
+                                        tributeChest = GO_TRIBUTE_CHEST_10H_50;
+                                    else if (TrialCounter >= 25)
+                                        tributeChest = GO_TRIBUTE_CHEST_10H_45;
+                                    else
+                                        tributeChest = GO_TRIBUTE_CHEST_10H_25;
                                 }
                                 else if (instance->GetSpawnMode() == RAID_DIFFICULTY_25MAN_HEROIC)
                                 {
                                     if (TrialCounter >= 50)
                                         tributeChest = GO_TRIBUTE_CHEST_25H_99;
+                                    else if (TrialCounter >= 45)
+                                        tributeChest = GO_TRIBUTE_CHEST_25H_50;
+                                    else if (TrialCounter >= 25)
+                                        tributeChest = GO_TRIBUTE_CHEST_25H_45;
                                     else
-                                    {
-                                        if (TrialCounter >= 45)
-                                            tributeChest = GO_TRIBUTE_CHEST_25H_50;
-                                        else
-                                        {
-                                            if (TrialCounter >= 25)
-                                                tributeChest = GO_TRIBUTE_CHEST_25H_45;
-                                            else
-                                                tributeChest = GO_TRIBUTE_CHEST_25H_25;
-                                        }
-                                    }
+                                        tributeChest = GO_TRIBUTE_CHEST_25H_25;
                                 }
 
                                 if (tributeChest)
-                                    if (Creature* tirion =  GetCreature(DATA_FORDRING))
+                                    if (Creature* tirion = GetCreature(DATA_FORDRING))
                                         if (GameObject* chest = tirion->SummonGameObject(tributeChest, 805.62f, 134.87f, 142.16f, 3.27f, QuaternionData(), WEEK))
                                             chest->SetRespawnTime(chest->GetRespawnDelay());
                                 break;
@@ -292,6 +286,11 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         break;
                     default:
                         break;
+                }
+
+                if (state == IN_PROGRESS)
+                {
+                    CheckForItemLevel();
                 }
 
                 if (type < EncounterCount)
@@ -324,6 +323,95 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                         Save();
                 }
                 return true;
+            }
+
+            void OnPlayerEquipItem(Player* player, Item* item, EquipmentSlots slot)
+            {
+                if (!HasOnlyAllowedItems || TrialCounter != 50 || player->IsGameMaster() || !IsEncounterInProgress() ||
+                    instance->GetDifficulty() != RAID_DIFFICULTY_10MAN_HEROIC)
+                    return;
+
+                // only weapons can be changed infight
+                if (slot != EQUIPMENT_SLOT_MAINHAND && slot != EQUIPMENT_SLOT_OFFHAND && slot != EQUIPMENT_SLOT_RANGED)
+                    return;
+
+                if (item->GetTemplate()->ItemLevel > MAX_ALLOWED_ITEMLEVEL)
+                {
+                    DoSendNotifyToInstance("|cFFFFFC00 [A Tribute to Dedicated Insanity!] |cFF00FFFF Failed item: %u.", item->GetEntry());
+                    HasOnlyAllowedItems = false;
+                    return;
+                }
+
+                // some 245 parts are also forbidden
+                for (uint32 i = 0; i < sizeof(ForbiddenWeapons) / sizeof(uint32); ++i)
+                {
+                    if (item->GetEntry() == ForbiddenWeapons[i])
+                    {
+                        DoSendNotifyToInstance("|cFFFFFC00 [A Tribute to Dedicated Insanity!] |cFF00FFFF Failed item: %u.", item->GetEntry());
+                        HasOnlyAllowedItems = false;
+                        return;
+                    }
+                }
+            }
+
+            void CheckForItemLevel()
+            {
+                if (!HasOnlyAllowedItems || TrialCounter != 50 || instance->GetDifficulty() != RAID_DIFFICULTY_10MAN_HEROIC)
+                    return;
+
+                Map::PlayerList const& players = instance->GetPlayers();
+                for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr) // check all slots on all player
+                {
+                    if (Player* player = itr->GetSource())
+                    {
+                        for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
+                        {
+                            if (slot == EQUIPMENT_SLOT_TABARD || slot == EQUIPMENT_SLOT_BODY)
+                                continue;
+
+                            if (Item* item = player->GetItemByPos(INVENTORY_SLOT_BAG_0, slot))
+                            {
+                                if (item->GetTemplate()->ItemLevel > MAX_ALLOWED_ITEMLEVEL) // to hight itemlevel (ilvl > 245)
+                                {
+                                    if (slot == EQUIPMENT_SLOT_BACK) // some cloacks(ilvl 258) are allowed
+                                    {
+                                        bool isAllowedCloack = false;
+                                        for (uint8 i = 0; i < 10; i++)
+                                        {
+                                            if (item->GetEntry() == AllowedItem[i])
+                                                isAllowedCloack = true;
+                                        }
+                                        if (!isAllowedCloack) // return false if no special cloack
+                                        {
+                                            DoSendNotifyToInstance("|cFFFFFC00 [A Tribute to Dedicated Insanity!] |cFF00FFFF Failed item: %u.", item->GetEntry());
+                                            HasOnlyAllowedItems = false;
+                                            return;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        DoSendNotifyToInstance("|cFFFFFC00 [A Tribute to Dedicated Insanity!] |cFF00FFFF Failed item: %u.", item->GetEntry());
+                                        HasOnlyAllowedItems = false; // no 258er cloack
+                                        return;
+                                    }
+                                }
+                                else // item level below 245
+                                {
+                                    // some 245 parts are also forbidden
+                                    for (uint32 i = 0; i < sizeof(ForbiddenItems) / sizeof(uint32); ++i)
+                                    {
+                                        if (item->GetEntry() == ForbiddenItems[i])
+                                        {
+                                            DoSendNotifyToInstance("|cFFFFFC00 [A Tribute to Dedicated Insanity!] |cFF00FFFF Failed item: %u.", item->GetEntry());
+                                            HasOnlyAllowedItems = false;
+                                            return;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             void HandleNorthrendBeastsDone()
@@ -578,6 +666,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     saveStream << GetBossState(i) << ' ';
 
                 saveStream << TrialCounter;
+                saveStream << HasOnlyAllowedItems;
                 SaveDataBuffer = saveStream.str();
 
                 SaveToDB();
@@ -612,6 +701,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 }
 
                 loadStream >> TrialCounter;
+                loadStream >> HasOnlyAllowedItems;
                 EventStage = 0;
 
                 OUT_LOAD_INST_DATA_COMPLETE;
@@ -646,7 +736,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                     case A_TRIBUTE_TO_IMMORTALITY_ALLIANCE:
                         return TrialCounter == 50 && TributeToImmortalityEligible;
                     case A_TRIBUTE_TO_DEDICATED_INSANITY:
-                        return false/*uiGrandCrusaderAttemptsLeft == 50 && !bHasAtAnyStagePlayerEquippedTooGoodItem*/;
+                        return TrialCounter == 50 && HasOnlyAllowedItems;
                     default:
                         break;
                 }
@@ -672,6 +762,7 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 uint8 MistressOfPainCount;
                 uint8 NorthrendBeastsCount;
                 bool TributeToImmortalityEligible;
+                bool HasOnlyAllowedItems;
         };
 
         InstanceScript* GetInstanceScript(InstanceMap* map) const override

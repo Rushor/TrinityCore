@@ -12169,6 +12169,9 @@ Item* Player::EquipItem(uint16 pos, Item* pItem, bool update)
     if (slot == EQUIPMENT_SLOT_MAINHAND || slot == EQUIPMENT_SLOT_OFFHAND)
         CheckTitanGripPenalty();
 
+    if (InstanceScript* instance = GetInstanceScript())
+        instance->OnPlayerEquipItem(this, pItem, EquipmentSlots(slot));
+
     // only for full equip instead adding to stack
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_ITEM, pItem->GetEntry());
     UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_EQUIP_EPIC_ITEM, slot, pItem->GetEntry());
