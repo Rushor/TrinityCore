@@ -331,6 +331,9 @@ struct boss_thaddius : public BossAI
                 stalagg->AI()->DoAction(ACTION_BEGIN_RESET_ENCOUNTER);
                 stalagg->Respawn();
             }
+
+            if (instance && instance->GetBossState(BOSS_THADDIUS) != DONE)
+                instance->SetBossState(BOSS_THADDIUS, NOT_STARTED);
         }
 
         void ResetEncounter()
@@ -341,6 +344,8 @@ struct boss_thaddius : public BossAI
             _Reset();
             events.SetPhase(PHASE_NOT_ENGAGED);
             me->SetReactState(REACT_PASSIVE);
+            if (instance && instance->GetBossState(BOSS_THADDIUS) != DONE)
+                instance->SetBossState(BOSS_THADDIUS, NOT_STARTED);
 
             // @todo these guys should really be moved to a summon group - this is merely a hack to make them work in dynamic_spawning
             instance->instance->Respawn(SPAWN_TYPE_CREATURE, 130958); // Stalagg
