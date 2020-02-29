@@ -1455,6 +1455,7 @@ enum NoggenfoggerElixirSpells
     SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED1 = 16595,
     SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED2 = 16593,
     SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED3 = 16591,
+    SPELL_BABY_SPICE                     = 60122
 };
 
 class spell_item_noggenfogger_elixir : public SpellScript
@@ -1476,6 +1477,15 @@ class spell_item_noggenfogger_elixir : public SpellScript
         });
     }
 
+    SpellCastResult CheckCast()
+    {
+        Unit* caster = GetCaster();
+        if (caster->HasAura(SPELL_BABY_SPICE))
+            return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+        return SPELL_CAST_OK;
+    }
+
     void HandleDummy(SpellEffIndex /*effIndex*/)
     {
         Unit* caster = GetCaster();
@@ -1491,6 +1501,7 @@ class spell_item_noggenfogger_elixir : public SpellScript
 
     void Register() override
     {
+        OnCheckCast += SpellCheckCastFn(spell_item_noggenfogger_elixir::CheckCast);
         OnEffectHit += SpellEffectFn(spell_item_noggenfogger_elixir::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
@@ -3246,6 +3257,15 @@ class spell_item_pygmy_oil : public SpellScript
         return ValidateSpellInfo({ SPELL_PYGMY_OIL_PYGMY_AURA, SPELL_PYGMY_OIL_SMALLER_AURA });
     }
 
+    SpellCastResult CheckCast()
+    {
+        Unit* caster = GetCaster();
+        if (caster->HasAura(SPELL_NOGGENFOGGER_ELIXIR_TRIGGERED1) || caster->HasAura(SPELL_BABY_SPICE))
+            return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
+
+        return SPELL_CAST_OK;
+    }
+
     void HandleDummy(SpellEffIndex /* effIndex */)
     {
         Unit* caster = GetCaster();
@@ -3266,6 +3286,7 @@ class spell_item_pygmy_oil : public SpellScript
 
     void Register() override
     {
+        OnCheckCast += SpellCheckCastFn(spell_item_pygmy_oil::CheckCast);
         OnEffectHitTarget += SpellEffectFn(spell_item_pygmy_oil::HandleDummy, EFFECT_0, SPELL_EFFECT_DUMMY);
     }
 };
