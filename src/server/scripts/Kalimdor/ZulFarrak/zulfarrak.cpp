@@ -422,6 +422,7 @@ public:
                         me->SummonCreature(NPC_DEAD_HERO, me->GetPositionX(), me->GetPositionY(), me->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 30000);
             }
             me->AddUse();
+            me->DespawnOrUnsummon();
             return false;
         }
     };
