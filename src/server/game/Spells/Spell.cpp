@@ -2683,6 +2683,9 @@ SpellMissInfo Spell::PreprocessSpellHit(Unit* unit, bool scaleAura, TargetInfo& 
                 unit->GetThreatManager().ForwardThreatForAssistingMe(m_originalCaster, 0.0f, nullptr, true);
             }
         }
+
+        if (unit->HasAuraTypeWithFamilyFlags(SPELL_AURA_MOD_STEALTH, SPELLFAMILY_ROGUE, 0x800) && !m_caster->CanSeeOrDetect(unit))
+            return SPELL_MISS_EVADE;
     }
 
     // original caster for auras
