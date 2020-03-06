@@ -37,6 +37,7 @@
 #include "Player.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "SpellAuras.h"
 
 void WorldSession::HandleBattlemasterHelloOpcode(WorldPacket& recvData)
 {
@@ -521,6 +522,10 @@ void WorldSession::HandleBattleFieldPortOpcode(WorldPacket &recvData)
             stmt->setUInt32(0, _player->GetGUID().GetCounter());
             stmt->setUInt8(1, BG_DESERTION_TYPE_LEAVE_QUEUE);
             CharacterDatabase.Execute(stmt);
+
+            // Track if player refuses to join the BG and add 5 minutes deserteur buff for deny proposal
+            if (Aura* aura = _player->AddAura(26013, _player))
+                aura->SetDuration(sWorld->getIntConfig(CONFIG_BATTLEGROUND_DENY_DEBUFF_TIME) * IN_MILLISECONDS);
         }
     }
 }

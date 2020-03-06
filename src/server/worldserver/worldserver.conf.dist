@@ -2702,6 +2702,14 @@ Battleground.RewardLoserHonorLast   = 5
 Battleground.ReportAFK = 3
 
 #
+#    Battleground.BattlegroundDenyDebuffTime
+#        Description: Time of Deserteur Debuff that will be add upon deny a Battleground Proposal
+#        Range:       Anything
+#        Default:     300
+
+Battleground.BattlegroundDenyDebuffTime = 300
+
+#
 ###################################################################################################
 
 ###################################################################################################
