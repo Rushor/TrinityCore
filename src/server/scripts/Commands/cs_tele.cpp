@@ -306,6 +306,8 @@ public:
         else
             player->SaveRecallPosition(); // save only in non-flight case
 
+        player->Dismount();
+        player->RemoveAurasByType(SPELL_AURA_MOUNTED);
         player->TeleportTo(tele->mapId, tele->position_x, tele->position_y, tele->position_z, tele->orientation);
         return true;
     }
