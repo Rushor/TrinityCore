@@ -37,6 +37,169 @@
 
 #define PET_XP_FACTOR 0.05f
 
+enum PetTypes
+{
+    // Hunter
+    NPC_TRAP_SNAKE_VENOMUS  = 19833,
+    NPC_TRAP_SNAKE_VIPER    = 19921,
+    // Warlock                          
+    NPC_FELGUARD            = 17252,
+    NPC_VOIDWALKER          = 1860,
+    NPC_FELHUNTER           = 417,
+    NPC_SUCCUBUS            = 1863,
+    NPC_IMP                 = 416,
+    NPC_INFERNAL            = 89,
+    NPC_DOOMGUARD           = 11859,
+    // Mage                             
+    NPC_WATER_ELEMENTAL     = 510,
+    NPC_WATER_ELEMENTAL_P   = 37994,
+    NPC_MIRROR_IMAGE        = 31216,
+    // Druid                            
+    NPC_TREANT              = 1964,
+    // Shaman                           
+    NPC_EARTH_ELEMENTAL     = 15352,
+    NPC_FIRE_ELEMENTAL      = 15438,
+    // Death Knight                     
+    NPC_GHOUL               = 26125,
+    NPC_EBON_GARGOYLE       = 27829,
+    NPC_BLOODWORM           = 28017,
+    NPC_ARMY_OF_DEAD_GHOUL  = 24207,
+    NPC_DANCING_RUNE_WEAPON = 27893,
+    // Shaman                           
+    NPC_FERAL_SPIRIT        = 29264,
+    // Priest                           
+    NPC_SHADOWNFIEND        = 19668
+};
+
+enum GeneralPetCalculate
+{
+    SPELL_TAMED_PET_PASSIVE_08_HIT     = 34666,
+    SPELL_TAMED_PET_PASSIVE_11         = 55566, // is removed from pet
+    SPELL_TAMED_PET_PASSIVE_DND_RESIST = 19007, // is removed from pet
+    SPELL_TAMED_PET_PASSIVE_06         = 19591,
+    SPELL_TAMED_PET_PASSIVE_07         = 20784,
+    SPELL_TAMED_PET_PASSIVE_09         = 34667
+};
+
+enum HunterPetCalculate
+{
+    SPELL_HUNTER_PET_SCALING_04        = 61017,
+    SPELL_HUNTER_PET_SCALING_01        = 34902,
+    SPELL_HUNTER_PET_SCALING_02        = 34903,
+    SPELL_HUNTER_PET_SCALING_03        = 34904,
+    SPELL_HUNTER_ANIMAL_HANDLER        = 34453
+};
+
+enum WarlockPetCalculate
+{
+    SPELL_WARLOCK_PET_SCALING_05       = 61013,
+
+    SPELL_WARLOCK_DEMONIC_KNOWLEGE_R1  = 35691,
+    SPELL_WARLOCK_DEMONIC_KNOWLEGE     = 35696,
+    SPELL_DEMONIC_IMMOLATION_PASSIVE   = 4525,
+
+    // unused                           
+    SPELL_PET_PASSIVE_CRIT             = 35695,
+    SPELL_PET_PASSIVE_DAMAGE_TAKEN     = 35697,
+    SPELL_WARLOCK_PET_SCALING_01       = 34957,
+    SPELL_WARLOCK_PET_SCALING_04       = 34958,
+    SPELL_WARLOCK_GLYPH_OF_VOIDWALKER  = 56247,
+    SPELL_GLYPH_OF_FELGUARD            = 56246,
+    SPELL_INFERNAL_SCALING_01          = 36186,
+    SPELL_INFERNAL_SCALING_02          = 36188,
+    SPELL_INFERNAL_SCALING_03          = 36189,
+    SPELL_INFERNAL_SCALING_04          = 36190,
+    SPELL_RITUAL_ENSLAVEMENT           = 22987
+};
+
+enum PriestPetCalculate
+{
+    SPELL_MANA_LEECH = 28305,
+    SPELL_SHADOWFIEND_SCALING_01       = 35661,
+    SPELL_SHADOWFIEND_SCALING_02       = 35662,
+    SPELL_SHADOWFIEND_SCALING_03       = 35663,
+    SPELL_SHADOWFIEND_SCALING_04       = 35664
+};
+
+enum DKPetCalculate
+{
+    SPELL_DEATH_KNIGHT_PET_SCALING_03   = 61697,
+    SPELL_TAMED_PET_PASSIVE_10_HASTE    = 34675,
+    SPELL_DEATH_KNIGHT_AOEDAMAGE_REDUCE = 62137,
+    SPELL_NIGHT_OF_THE_DEAD             = 55620,
+    SPELL_ORC_RACIAL_COMMAND            = 65221,
+    SPELL_DEATH_KNIGHT_RUNE_WEAPON_02   = 51906,
+    SPELL_DEATH_KNIGHT_PET_SCALING_01   = 54566,
+    SPELL_DEATH_KNIGHT_PET_SCALING_02   = 51996
+};
+
+enum MagePetCalculate
+{
+    SPELL_MAGE_PET_SCALING_01           = 35657,
+    SPELL_MAGE_PET_SCALING_02           = 35658,
+    SPELL_MAGE_PET_SCALING_03           = 35659,
+    SPELL_MAGE_PET_SCALING_04           = 35660
+};
+
+enum DruidPetCalculate
+{
+    SPELL_TREANT_SCALING_01             = 35669,
+    SPELL_TREANT_SCALING_02             = 35670,
+    SPELL_TREANT_SCALING_03             = 35671,
+    SPELL_TREANT_SCALING_04             = 35672
+};
+
+enum ShamanPetCalculate
+{
+    SPELL_FIRE_ELEMENTAL_SCALING_01     = 35665,
+    SPELL_FIRE_ELEMENTAL_SCALING_02     = 35666,
+    SPELL_FIRE_ELEMENTAL_SCALING_03     = 35667,
+    SPELL_FIRE_ELEMENTAL_SCALING_04     = 35668,
+                                        
+    SPELL_FERAL_SPIRIT_PET_SCALING_04   = 61783,
+    SPELL_FERAL_SPIRIT_SPIRIT_HUNT      = 58877,
+    SPELL_FERAL_SPIRIT_SCALING_01       = 35674,
+    SPELL_FERAL_SPIRIT_SCALING_02       = 35675,
+    SPELL_FERAL_SPIRIT_SCALING_03       = 35676,
+
+    SPELL_EARTH_ELEMENTAL_SCALING_01    = 65225,
+    SPELL_EARTH_ELEMENTAL_SCALING_02    = 65226,
+    SPELL_EARTH_ELEMENTAL_SCALING_03    = 65227,
+    SPELL_EARTH_ELEMENTAL_SCALING_04    = 65228
+};
+
+enum MiscPetCalculate
+{
+    SPELL_MAGE_PET_PASSIVE_ELEMENTAL    = 44559,
+    SPELL_PET_HEALTH_SCALING            = 61679,
+    SPELL_PET_UNK_01                    = 67561,
+    SPELL_PET_UNK_02                    = 67557
+};
+
+enum PetMiscData
+{
+    MAP_ICC = 631,
+    // Horde
+    SPELL_HELLSCREAM_WARSONG_5          = 73816,
+    SPELL_HELLSCREAM_WARSONG_10         = 73818,
+    SPELL_HELLSCREAM_WARSONG_15         = 73819,
+    SPELL_HELLSCREAM_WARSONG_20         = 73820,
+    SPELL_HELLSCREAM_WARSONG_25         = 73821,
+    SPELL_HELLSCREAM_WARSONG_30         = 73822,
+                                        
+    // Alliance                         
+    SPELL_STRENGTH_OF_WRYNN_5           = 73762,
+    SPELL_STRENGTH_OF_WRYNN_10          = 73824,
+    SPELL_STRENGTH_OF_WRYNN_15          = 73825,
+    SPELL_STRENGTH_OF_WRYNN_20          = 73826,
+    SPELL_STRENGTH_OF_WRYNN_25          = 73827,
+    SPELL_STRENGTH_OF_WRYNN_30          = 73828,
+                                        
+    SPELL_AVOIDANCE                     = 32233,
+    SPELL_PET_BLOODLUST                 = 2825,
+    SPELL_PET_HEROISM                   = 32182
+};
+
 Pet::Pet(Player* owner, PetType type) :
     Guardian(nullptr, owner, true), m_usedTalentCount(0), m_removed(false),
     m_happinessTimer(7500), m_petType(type), m_duration(0), m_auraRaidUpdateMask(0), m_loading(false),
@@ -1027,7 +1190,7 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     }
                     break;
                 }
-                case 27829: // Ebon Gargoyle
+                case NPC_EBON_GARGOYLE: // Ebon Gargoyle
                 {
                     if (!pInfo)
                     {
@@ -1037,14 +1200,35 @@ bool Guardian::InitStatsForLevel(uint8 petlevel)
                     SetBonusDamage(int32(GetOwner()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.5f));
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
+                    CastSpell(this, SPELL_DEATH_KNIGHT_AOEDAMAGE_REDUCE, true);
                     break;
                 }
-                case 28017: // Bloodworms
+                case NPC_GHOUL:
+                {
+                    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
+                    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
+                    CastSpell(this, SPELL_DEATH_KNIGHT_AOEDAMAGE_REDUCE, true);
+                    break;
+                }
+                case NPC_ARMY_OF_DEAD_GHOUL:
+                {
+                    RemoveAurasDueToSpell(SPELL_DEATH_KNIGHT_PET_SCALING_01);
+                    RemoveAurasDueToSpell(SPELL_AVOIDANCE);
+                    CastSpell(this, SPELL_DEATH_KNIGHT_PET_SCALING_01, true);
+                    CastSpell(this, SPELL_AVOIDANCE, true);
+                    ApplySpellImmune(0, IMMUNITY_ID, SPELL_PET_BLOODLUST, true);
+                    ApplySpellImmune(0, IMMUNITY_ID, SPELL_PET_HEROISM, true);
+                    SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
+                    SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
+                    break;
+                }
+                case NPC_BLOODWORM: // Bloodworms
                 {
                     SetCreateHealth(4 * petlevel);
                     SetBonusDamage(int32(GetOwner()->GetTotalAttackPowerValue(BASE_ATTACK) * 0.006f));
                     SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - 30 - (petlevel / 4)));
                     SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel - 30 + (petlevel / 4)));
+                    CastSpell(this, SPELL_DEATH_KNIGHT_AOEDAMAGE_REDUCE, true);
                     break;
                 }
                 default:

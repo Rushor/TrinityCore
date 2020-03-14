@@ -1760,4 +1760,5 @@ public:
 void AddSC_pet_spell_scripts()
 {
     new spell_gen_pet_calculate();
+    new spell_dk_avoidance_passive();
 }
