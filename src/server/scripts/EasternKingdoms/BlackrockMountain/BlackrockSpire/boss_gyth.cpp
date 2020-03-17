@@ -90,11 +90,17 @@ public:
 
         void JustDied(Unit* /*killer*/) override
         {
+            if (!SummonedRend)
+            {
+                // Enforcing a Rend spawn even when Gyth is killed in one attack
+                me->SummonCreature(NPC_WARCHIEF_REND_BLACKHAND, me->GetPosition(), TEMPSUMMON_DEAD_DESPAWN); // Rend Blackhand
+                SummonedRend = true;
+            }
             instance->SetBossState(DATA_GYTH, DONE);
-            if (!me->FindNearestCreature(NPC_WARCHIEF_REND_BLACKHAND, 100.0f))
-                DoCast(me, SPELL_SUMMON_REND, true);
             if (GameObject* gate = me->GetMap()->GetGameObject(instance->GetGuidData(GO_PORTCULLIS_ACTIVE)))
                 gate->SetGoState(GO_STATE_ACTIVE);
+            if(GameObject* gateboss = me->GetMap()->GetGameObject(instance->GetGuidData(GO_PORTCULLIS_TOBOSSROOMS)))
+                gateboss->SetGoState(GO_STATE_ACTIVE);
         }
 
         void SetData(uint32 /*type*/, uint32 data) override
