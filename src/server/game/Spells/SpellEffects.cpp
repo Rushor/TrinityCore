@@ -1734,6 +1734,15 @@ void Spell::SendLoot(ObjectGuid guid, LootType loottype)
                     gameObjTarget->TriggeringLinkedGameObject(trapEntry, player);
                 return;
 
+            case GAMEOBJECT_TYPE_TRAP:
+                if ((m_spellInfo->Id == 15748) || (m_spellInfo->Id == 16028)) // Freeze Rookery Egg
+                {
+                    if (gameObjTarget->getLootState() == GO_READY)
+                        gameObjTarget->UseDoorOrButton(0, true);
+                    return;
+                }
+                return;
+
             case GAMEOBJECT_TYPE_CHEST:
                 /// @todo possible must be moved to loot release (in different from linked triggering)
                 if (gameObjTarget->GetGOInfo()->chest.eventId)
@@ -3735,6 +3744,12 @@ void Spell::EffectActivateObject(SpellEffIndex /*effIndex*/)
 
     if (!gameObjTarget)
         return;
+
+    if (m_spellInfo->Id == 15958) // Collect Rookery Egg
+    {
+        gameObjTarget->AddObjectToRemoveList();
+        return;
+    }
 
     ScriptInfo activateCommand;
     activateCommand.command = SCRIPT_COMMAND_ACTIVATE_OBJECT;
