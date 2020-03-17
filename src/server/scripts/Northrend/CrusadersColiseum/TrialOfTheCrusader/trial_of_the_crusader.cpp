@@ -333,7 +333,12 @@ struct boss_lich_king_toc : public ScriptedAI
                     if (Creature* fordring = _instance->GetCreature(DATA_FORDRING))
                         fordring->AI()->DoAction(ACTION_LK_EVENT_FINISHED);
                     if (GameObject* floor = _instance->GetGameObject(DATA_COLISEUM_FLOOR))
+					{
+                        floor->SetDisplayId(9060 /*DISPLAYID_DESTROYED_FLOOR*/);
+                        floor->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_DAMAGED | GO_FLAG_NODESPAWN);
+                        floor->SetGoState(GO_STATE_ACTIVE);
                         floor->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
+					}
                     _instance->SetBossState(DATA_LICH_KING, DONE);
                     break;
                 case EVENT_EMOTE_TALK:

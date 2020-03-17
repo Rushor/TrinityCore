@@ -134,6 +134,16 @@ class instance_trial_of_the_crusader : public InstanceMapScript
                 }
                 else
                     player->SendUpdateWorldState(UPDATE_STATE_UI_SHOW, 0);
+				
+				// make sure Anub'arak isnt missing and floor is destroyed after a crash
+                if (GetBossState(DATA_LICH_KING) == DONE)
+                {
+                    if (GameObject* floor = GetGameObject(DATA_COLISEUM_FLOOR))
+                    {
+                        floor->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
+                        floor->DestroyForPlayer(player);
+                    }
+                }
 
                 if (Team == TEAM_OTHER)
                     Team = player->GetTeam();
