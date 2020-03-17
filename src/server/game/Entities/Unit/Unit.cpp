@@ -3192,6 +3192,10 @@ Aura* Unit::_TryStackingOrRefreshingExistingAura(AuraCreateInfo& createInfo)
         // check if cast item changed
         ObjectGuid castItemGUID = createInfo.CastItemGUID;
 
+        // check if different casters should stack in same slot
+        if (createInfo.GetSpellInfo()->AttributesCu & SPELL_ATTR0_CU_SAME_STACK)
+            createInfo.CasterGUID = ObjectGuid::Empty;
+
         // find current aura from spell and change it's stackamount, or refresh it's duration
         if (Aura* foundAura = GetOwnedAura(createInfo.GetSpellInfo()->Id, createInfo.GetSpellInfo()->IsStackableOnOneSlotWithDifferentCasters() ? ObjectGuid::Empty : createInfo.CasterGUID, createInfo.GetSpellInfo()->HasAttribute(SPELL_ATTR0_CU_ENCHANT_PROC) ? castItemGUID : ObjectGuid::Empty))
         {
