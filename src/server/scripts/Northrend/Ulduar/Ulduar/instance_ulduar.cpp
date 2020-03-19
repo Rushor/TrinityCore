@@ -235,6 +235,11 @@ class instance_ulduar : public InstanceMapScript
 
             void OnPlayerEnter(Player* player) override
             {
+                player->GetMap()->LoadGrid(1989.759f, -102.798f);
+                player->GetMap()->LoadGrid(2028.822f, -65.73573f);
+                player->GetMap()->LoadGrid(2028.766f, 17.42014f);
+                player->GetMap()->LoadGrid(1945.682f, 33.34201f);
+
                 if (!TeamInInstance)
                     TeamInInstance = player->GetTeam();
 
@@ -648,14 +653,6 @@ class instance_ulduar : public InstanceMapScript
                     case BOSS_VEZAX:
                     case BOSS_YOGG_SARON:
                         break;
-                    case BOSS_MIMIRON:
-                        if (state == DONE)
-                            instance->SummonCreature(NPC_MIMIRON_OBSERVATION_RING, ObservationRingKeepersPos[3]);
-                        break;
-                    case BOSS_FREYA:
-                        if (state == DONE)
-                            instance->SummonCreature(NPC_FREYA_OBSERVATION_RING, ObservationRingKeepersPos[0]);
-                        break;
                     case BOSS_IRONBRANCH:
                     case BOSS_STONEBARK:
                     case BOSS_BRIGHTLEAF:
@@ -690,8 +687,6 @@ class instance_ulduar : public InstanceMapScript
                                     cache->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_LOCKED | GO_FLAG_NOT_SELECTABLE | GO_FLAG_NODESPAWN);
                                 }
                             }
-
-                            instance->SummonCreature(NPC_THORIM_OBSERVATION_RING, ObservationRingKeepersPos[2]);
                         }
                         else
                         {

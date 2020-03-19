@@ -386,7 +386,7 @@ Position const YoggSaronSpawnPos            = {1980.43f, -25.7708f, 324.9724f, 3
 Position const ObservationRingKeepersPos[4] =
 {
     {1945.682f,  33.34201f, 411.4408f, 5.270895f},  // Freya
-    {1945.761f, -81.52171f, 411.4407f, 1.029744f},  // Hodir
+    {1945.071f,   -79.098f, 411.357f,  1.05809f},  // Hodir
     {2028.822f, -65.73573f, 411.4426f, 2.460914f},  // Thorim
     {2028.766f,  17.42014f, 411.4446f, 3.857178f},  // Mimiron
 };

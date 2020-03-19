@@ -644,6 +644,9 @@ class boss_mimiron : public CreatureScript
                             DoCast(me, SPELL_SLEEP_VISUAL_2);
                             me->SetFaction(FACTION_FRIENDLY);
                             events.ScheduleEvent(EVENT_OUTTRO_2, 3000);
+                            me->GetMap()->LoadGrid(2028.766f, 17.42014f);
+                            if (Creature* mimiron = me->SummonCreature(NPC_MIMIRON_OBSERVATION_RING, ObservationRingKeepersPos[3], TEMPSUMMON_MANUAL_DESPAWN))
+                                mimiron->setActive(true);
                             break;
                         case EVENT_OUTTRO_2:
                             Talk(SAY_V07TRON_DEATH);

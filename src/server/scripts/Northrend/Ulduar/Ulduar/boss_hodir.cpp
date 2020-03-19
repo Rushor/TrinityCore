@@ -440,6 +440,13 @@ class boss_hodir : public CreatureScript
 
                     DoCastAOE(SPELL_KILL_CREDIT, true); /// need to be cast before changing boss faction
                                                         /// spell will target enemies only
+
+                    events.Reset();
+                    summons.DespawnAll();
+                    scheduler.CancelAll();
+                    instance->SetBossState(BOSS_HODIR, DONE);
+                    me->GetMap()->LoadGrid(1945.071f, -79.098f);
+
                     me->SetFaction(FACTION_FRIENDLY);
                     me->DespawnOrUnsummon(10000);
 
@@ -455,8 +462,6 @@ class boss_hodir : public CreatureScript
                         instance->DoCompleteAchievement(RAID_MODE(ACHIEVEMENT_COOLEST_FRIENDS_10, ACHIEVEMENT_COOLEST_FRIENDS_25));
                     if (gettingColdInHere)
                         instance->DoCompleteAchievement(RAID_MODE(ACHIEVEMENT_GETTING_COLD_IN_HERE_10, ACHIEVEMENT_GETTING_COLD_IN_HERE_25));
-
-                    _JustDied();
                 }
                 else if (!me->IsInCombat())
                 {
