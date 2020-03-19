@@ -660,7 +660,8 @@ class boss_mimiron : public CreatureScript
                         case EVENT_OUTTRO_3:
                             DoCast(me, SPELL_TELEPORT_VISUAL);
                             me->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            me->DespawnOrUnsummon(1000); // sniffs say 6 sec after, but it doesnt matter.
+                            me->DespawnOrUnsummon(604800); // Only set invisisble, so the chest summons will not despawn (he's friendly anyway)
+                            me->SetVisible(false);
                             break;
                         default:
                             break;
