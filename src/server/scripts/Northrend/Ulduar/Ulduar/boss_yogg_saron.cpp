@@ -935,6 +935,8 @@ class boss_yogg_saron : public CreatureScript
                 _events.ScheduleEvent(EVENT_YELL_BOW_DOWN, 3s, 0, PHASE_TWO);
                 DoCast(me, SPELL_SHADOWY_BARRIER_YOGG);
                 DoCast(me, SPELL_KNOCK_AWAY);
+				me->SetFloatValue(UNIT_FIELD_COMBATREACH, 20.0f);
+                me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 20.0f);
 
                 me->ResetLootMode();
                 uint32 keepersCount = _instance->GetData(DATA_KEEPERS_COUNT);
@@ -1062,6 +1064,8 @@ class boss_brain_of_yogg_saron : public CreatureScript
             {
                 me->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 me->SetImmuneToPC(false);
+				me->SetFloatValue(UNIT_FIELD_COMBATREACH, 25.0f);
+                me->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, 25.0f);
                 DoCast(me, SPELL_MATCH_HEALTH);
                 _summons.DespawnAll();
             }
