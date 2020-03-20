@@ -4196,6 +4196,15 @@ void SpellMgr::LoadSpellInfoCorrections()
     {
         spellInfo->Effects[0].TargetA = SpellImplicitTargetInfo(TARGET_DEST_DB);
     });
+
+    // Cancel Illusion Room Aura
+    ApplySpellFix({
+        63993
+        }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->RangeEntry = sSpellRangeStore.LookupEntry(34); // Twenty-Five yards
+        spellInfo->Effects[EFFECT_0].RadiusEntry = sSpellRadiusStore.LookupEntry(EFFECT_RADIUS_25_YARDS);
+    });
     // ENDOF ULDUAR SPELLS
 
     //
