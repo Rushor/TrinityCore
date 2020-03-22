@@ -465,7 +465,7 @@ public:
                         case EVENT_WHELP_SPAWN:      // Phase PHASE_BREATH
                             me->SummonCreature(NPC_WHELP, SpawnLocations[0], TEMPSUMMON_CORPSE_DESPAWN);
                             me->SummonCreature(NPC_WHELP, SpawnLocations[1], TEMPSUMMON_CORPSE_DESPAWN);
-                            if (SummonWhelpCount >= RAID_MODE(20, 40))
+                            if (SummonWhelpCount >= 10)
                             {
                                 SummonWhelpCount = 0;
                                 events.ScheduleEvent(EVENT_WHELP_SPAWN, 90s);
