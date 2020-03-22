@@ -232,6 +232,9 @@ class instance_ulduar : public InstanceMapScript
 
             void OnPlayerEnter(Player* player) override
             {
+                player->Dismount();
+                player->RemoveAurasByType(SPELL_AURA_MOUNTED);
+
                 if (!TeamInInstance)
                     TeamInInstance = player->GetTeam();
 
