@@ -383,13 +383,6 @@ enum CreatureGroups
 };
 
 Position const YoggSaronSpawnPos            = {1980.43f, -25.7708f, 324.9724f, 3.141593f};
-Position const ObservationRingKeepersPos[4] =
-{
-    {1945.682f,  33.34201f, 411.4408f, 5.270895f},  // Freya
-    {1945.071f,   -79.098f, 411.357f,  1.05809f},  // Hodir
-    {2028.822f, -65.73573f, 411.4426f, 2.460914f},  // Thorim
-    {2028.766f,  17.42014f, 411.4446f, 3.857178f},  // Mimiron
-};
 Position const YSKeepersPos[4] =
 {
     {2036.873f,  25.42513f, 338.4984f, 3.909538f},  // Freya
@@ -1537,6 +1530,11 @@ class npc_immortal_guardian : public CreatureScript
         }
 };
 
+enum KeepersMiscEvent
+{
+    EVENT_CHECK_BOSS_STATE = 1
+};
+
 class npc_observation_ring_keeper : public CreatureScript
 {
     public:
@@ -1544,12 +1542,18 @@ class npc_observation_ring_keeper : public CreatureScript
 
         struct npc_observation_ring_keeperAI : public ScriptedAI
         {
-            npc_observation_ring_keeperAI(Creature* creature) : ScriptedAI(creature) { }
+            npc_observation_ring_keeperAI(Creature* creature) : ScriptedAI(creature)
+            {
+                instance = me->GetInstanceScript();
+            }
 
             void Reset() override
             {
+                me->SetVisible(false);
+                events.ScheduleEvent(EVENT_CHECK_BOSS_STATE, 0.1 * IN_MILLISECONDS);
                 DoCast(SPELL_SIMPLE_TELEPORT_KEEPERS);  // not visible here
                 DoCast(SPELL_KEEPER_ACTIVE);
+                me->setActive(true);
             }
 
             bool GossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override
@@ -1581,7 +1585,32 @@ class npc_observation_ring_keeper : public CreatureScript
                 return false;
             }
 
-            void UpdateAI(uint32 /*diff*/) override { }
+            void UpdateAI(uint32 diff) override
+            {
+                events.Update(diff);
+
+                switch (events.ExecuteEvent())
+                {
+                    case EVENT_CHECK_BOSS_STATE:
+                        if (me->GetEntry() == NPC_FREYA_OBSERVATION_RING && instance->GetBossState(BOSS_FREYA) == DONE)
+                            me->SetVisible(true);
+                        if (me->GetEntry() == NPC_HODIR_OBSERVATION_RING && instance->GetBossState(BOSS_HODIR) == DONE)
+                            me->SetVisible(true);
+                        if (me->GetEntry() == NPC_THORIM_OBSERVATION_RING && instance->GetBossState(BOSS_THORIM) == DONE)
+                            me->SetVisible(true);
+                        if (me->GetEntry() == NPC_MIMIRON_OBSERVATION_RING && instance->GetBossState(BOSS_MIMIRON) == DONE)
+                            me->SetVisible(true);
+
+                        events.ScheduleEvent(EVENT_CHECK_BOSS_STATE, 5 * IN_MILLISECONDS);
+                        break;
+                    default:
+                        break;
+                }           
+            }
+
+        private:
+            EventMap events;
+            InstanceScript* instance;
         };
 
         CreatureAI* GetAI(Creature* creature) const override

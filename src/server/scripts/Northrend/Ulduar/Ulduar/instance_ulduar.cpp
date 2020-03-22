@@ -184,9 +184,6 @@ class instance_ulduar : public InstanceMapScript
                 _algalonSummoned = false;
                 _summonAlgalon = false;
                 _CoUAchivePlayerDeathMask = 0;
-
-                memset(_summonObservationRingKeeper, 0, sizeof(_summonObservationRingKeeper));
-                memset(_summonYSKeeper, 0, sizeof(_summonYSKeeper));
             }
 
             // Creatures
@@ -235,11 +232,6 @@ class instance_ulduar : public InstanceMapScript
 
             void OnPlayerEnter(Player* player) override
             {
-                player->GetMap()->LoadGrid(1989.759f, -102.798f);
-                player->GetMap()->LoadGrid(2028.822f, -65.73573f);
-                player->GetMap()->LoadGrid(2028.766f, 17.42014f);
-                player->GetMap()->LoadGrid(1945.682f, 33.34201f);
-
                 if (!TeamInInstance)
                     TeamInInstance = player->GetTeam();
 
@@ -252,38 +244,6 @@ class instance_ulduar : public InstanceMapScript
                     else
                         algalon->SetImmuneToPC(false);
                 }
-
-                // Keepers at Observation Ring
-                if (GetBossState(BOSS_FREYA) == DONE && _summonObservationRingKeeper[0] && !KeeperGUIDs[0])
-                {
-                    _summonObservationRingKeeper[0] = false;
-                    instance->SummonCreature(NPC_FREYA_OBSERVATION_RING, ObservationRingKeepersPos[0]);
-                }
-                if (GetBossState(BOSS_HODIR) == DONE && _summonObservationRingKeeper[1] && !KeeperGUIDs[1])
-                {
-                    _summonObservationRingKeeper[1] = false;
-                    instance->SummonCreature(NPC_HODIR_OBSERVATION_RING, ObservationRingKeepersPos[1]);
-                }
-                if (GetBossState(BOSS_THORIM) == DONE && _summonObservationRingKeeper[2] && !KeeperGUIDs[2])
-                {
-                    _summonObservationRingKeeper[2] = false;
-                    instance->SummonCreature(NPC_THORIM_OBSERVATION_RING, ObservationRingKeepersPos[2]);
-                }
-                if (GetBossState(BOSS_MIMIRON) == DONE && _summonObservationRingKeeper[3] && !KeeperGUIDs[3])
-                {
-                    _summonObservationRingKeeper[3] = false;
-                    instance->SummonCreature(NPC_MIMIRON_OBSERVATION_RING, ObservationRingKeepersPos[3]);
-                }
-
-                // Keepers in Yogg-Saron's room
-                if (_summonYSKeeper[0])
-                    instance->SummonCreature(NPC_FREYA_YS, YSKeepersPos[0]);
-                if (_summonYSKeeper[1])
-                    instance->SummonCreature(NPC_HODIR_YS, YSKeepersPos[1]);
-                if (_summonYSKeeper[2])
-                    instance->SummonCreature(NPC_THORIM_YS, YSKeepersPos[2]);
-                if (_summonYSKeeper[3])
-                    instance->SummonCreature(NPC_MIMIRON_YS, YSKeepersPos[3]);
             }
 
             void OnCreatureCreate(Creature* creature) override
@@ -361,25 +321,21 @@ class instance_ulduar : public InstanceMapScript
                     // Yogg-Saron
                     case NPC_FREYA_YS:
                         KeeperGUIDs[0] = creature->GetGUID();
-                        _summonYSKeeper[0] = false;
                         SaveToDB();
                         ++keepersCount;
                         break;
                     case NPC_HODIR_YS:
                         KeeperGUIDs[1] = creature->GetGUID();
-                        _summonYSKeeper[1] = false;
                         SaveToDB();
                         ++keepersCount;
                         break;
                     case NPC_THORIM_YS:
                         KeeperGUIDs[2] = creature->GetGUID();
-                        _summonYSKeeper[2] = false;
                         SaveToDB();
                         ++keepersCount;
                         break;
                     case NPC_MIMIRON_YS:
                         KeeperGUIDs[3] = creature->GetGUID();
-                        _summonYSKeeper[3] = false;
                         SaveToDB();
                         ++keepersCount;
                         break;
@@ -670,10 +626,6 @@ class instance_ulduar : public InstanceMapScript
                             }
                             HandleGameObject(KologarnBridgeGUID, false);
                         }
-                        break;
-                    case BOSS_HODIR:
-                        if (state == DONE)
-                            instance->SummonCreature(NPC_HODIR_OBSERVATION_RING, ObservationRingKeepersPos[1]);
                         break;
                     case BOSS_THORIM:
                         if (state == DONE)
@@ -976,17 +928,7 @@ class instance_ulduar : public InstanceMapScript
                 for (uint8 i = 0; i < 4; ++i)
                 {
                     data >> tempState;
-                    _summonYSKeeper[i] = tempState != 0;
                 }
-
-                if (GetBossState(BOSS_FREYA) == DONE && !_summonYSKeeper[0])
-                    _summonObservationRingKeeper[0] = true;
-                if (GetBossState(BOSS_HODIR) == DONE && !_summonYSKeeper[1])
-                    _summonObservationRingKeeper[1] = true;
-                if (GetBossState(BOSS_THORIM) == DONE && !_summonYSKeeper[2])
-                    _summonObservationRingKeeper[2] = true;
-                if (GetBossState(BOSS_MIMIRON) == DONE && !_summonYSKeeper[3])
-                    _summonObservationRingKeeper[3] = true;
 
                 data >> _CoUAchivePlayerDeathMask;
             }
@@ -1075,8 +1017,6 @@ class instance_ulduar : public InstanceMapScript
             uint32 _algalonTimer;
             bool _summonAlgalon;
             bool _algalonSummoned;
-            bool _summonObservationRingKeeper[4];
-            bool _summonYSKeeper[4];
             uint32 _maxArmorItemLevel;
             uint32 _maxWeaponItemLevel;
             uint32 _CoUAchivePlayerDeathMask;

@@ -651,10 +651,6 @@ class boss_freya : public CreatureScript
                         Elder->AI()->DoAction(ACTION_ELDER_FREYA_KILLED);
                     }
                 }
-
-                me->GetMap()->LoadGrid(1945.682f, 33.34201f);
-                if (Creature* freya = me->SummonCreature(NPC_FREYA_OBSERVATION_RING, ObservationRingKeepersPos[0], TEMPSUMMON_MANUAL_DESPAWN))
-                    freya->setActive(true);
             }
 
             void JustSummoned(Creature* summoned) override

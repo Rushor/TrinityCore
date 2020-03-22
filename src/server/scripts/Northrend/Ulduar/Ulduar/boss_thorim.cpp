@@ -602,10 +602,6 @@ class boss_thorim : public CreatureScript
                 events.ScheduleEvent(EVENT_OUTRO_2, _hardMode ? 8000 : 11000);
                 events.ScheduleEvent(EVENT_OUTRO_3, _hardMode ? 19000 : 21000);
 
-                me->GetMap()->LoadGrid(2028.822f, -65.73573f);
-                if (Creature* thorim = me->SummonCreature(NPC_THORIM_OBSERVATION_RING, ObservationRingKeepersPos[2], TEMPSUMMON_MANUAL_DESPAWN))
-                    thorim->setActive(true);
-
                 me->m_Events.AddEvent(new UlduarKeeperDespawnEvent(me), me->m_Events.CalculateTime(35000));
             }
 
