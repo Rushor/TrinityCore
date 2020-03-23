@@ -1553,7 +1553,6 @@ class npc_observation_ring_keeper : public CreatureScript
                 events.ScheduleEvent(EVENT_CHECK_BOSS_STATE, 0.1 * IN_MILLISECONDS);
                 DoCast(SPELL_SIMPLE_TELEPORT_KEEPERS);  // not visible here
                 DoCast(SPELL_KEEPER_ACTIVE);
-                me->setActive(true);
             }
 
             bool GossipSelect(Player* player, uint32 menuId, uint32 /*gossipListId*/) override

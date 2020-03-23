@@ -928,11 +928,6 @@ class instance_ulduar : public InstanceMapScript
                     }
                 }
 
-                for (uint8 i = 0; i < 4; ++i)
-                {
-                    data >> tempState;
-                }
-
                 data >> _CoUAchivePlayerDeathMask;
             }
 
