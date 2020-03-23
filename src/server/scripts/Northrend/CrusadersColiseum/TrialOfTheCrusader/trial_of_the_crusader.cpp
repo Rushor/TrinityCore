@@ -327,11 +327,6 @@ struct boss_lich_king_toc : public ScriptedAI
                     me->GetMotionMaster()->MoveAlongSplineChain(POINT_MIDDLE, SPLINE_INITIAL_MOVEMENT, true);
                     break;
                 case EVENT_BREAK_PLATFORM:
-                    DoCastSelf(SPELL_LK_FROST_NOVA, true);
-                    DoCastSelf(SPELL_CORPSE_TELEPORT, true);
-                    DoCastSelf(SPELL_DESTROY_FLOOR_KNOCKUP, true);
-                    if (Creature* fordring = _instance->GetCreature(DATA_FORDRING))
-                        fordring->AI()->DoAction(ACTION_LK_EVENT_FINISHED);
                     if (GameObject* floor = _instance->GetGameObject(DATA_COLISEUM_FLOOR))
 					{
                         floor->SetDisplayId(9060 /*DISPLAYID_DESTROYED_FLOOR*/);
@@ -339,6 +334,13 @@ struct boss_lich_king_toc : public ScriptedAI
                         floor->SetGoState(GO_STATE_ACTIVE);
                         floor->SetDestructibleState(GO_DESTRUCTIBLE_DAMAGED);
 					}
+                    if (GameObject* floor = me->FindNearestGameObject(GO_ARGENT_COLISEUM_FLOOR, 500.0f))
+                        floor->Delete();
+                    DoCastSelf(SPELL_LK_FROST_NOVA, true);
+                    DoCastSelf(SPELL_CORPSE_TELEPORT, true);
+                    DoCastSelf(SPELL_DESTROY_FLOOR_KNOCKUP, true);
+                    if (Creature* fordring = _instance->GetCreature(DATA_FORDRING))
+                        fordring->AI()->DoAction(ACTION_LK_EVENT_FINISHED);                   
                     _instance->SetBossState(DATA_LICH_KING, DONE);
                     break;
                 case EVENT_EMOTE_TALK:
