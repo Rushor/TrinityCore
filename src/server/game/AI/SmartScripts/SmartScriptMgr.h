@@ -1170,6 +1170,11 @@ struct SmartAction
             uint32 intensity;
         } overrideWeather;
 
+        struct
+        {
+            uint32 ToHomePosition;
+        } evade;
+
         //! Note for any new future actions
         //! All parameters must have type uint32
 

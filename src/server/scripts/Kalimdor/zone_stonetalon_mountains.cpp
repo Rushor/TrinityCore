@@ -20,6 +20,7 @@
 #include "ScriptedGossip.h"
 #include "ScriptedEscortAI.h"
 #include "Player.h"
+#include "GameObject.h"
 
 /*######
 ## npc_kaya_flathoof
@@ -96,11 +97,97 @@ public:
 
 };
 
-/*######
-## AddSC
-######*/
+enum CovertOpsAlphaBetaMisc
+{
+    // Spells
+    SPELL_SET_NG_5_CHARGE_RED = 6630,
+    SPELL_SET_NG_5_CHARGE_BLUE = 6626,
+    SPELL_REMOTE_DETONATOR_RED = 6627,
+    SPELL_REMOTE_DETONATOR_BLUE = 6656,
+
+    // Gameobjects
+    GO_NG_5_EXPLOSIVES_RED = 19592,
+    GO_NG_5_EXPLOSIVES_BLUE = 19601,
+
+    GO_SPELLFOCUS_RED = 19600,
+    GO_SPELLFOCUS_BLUE = 19591,
+    VENTURE_WAGON_1 = 20899,
+    VENTURE_WAGON_2 = 19547,
+};
+
+class spell_set_ng_5_charge : public SpellScriptLoader
+{
+public:
+    spell_set_ng_5_charge() : SpellScriptLoader("spell_set_ng_5_charge") { }
+
+    class spell_set_ng_5_charge_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_set_ng_5_charge_SpellScript);
+
+        void HandleAfterCast()
+        {
+            if (Unit* caster = GetCaster())
+            {
+                if (caster->FindNearestGameObject(GO_SPELLFOCUS_RED, 100.0f))
+                    caster->SummonGameObject(GO_NG_5_EXPLOSIVES_RED, caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ(), caster->GetOrientation(), QuaternionData(), 300 * IN_MILLISECONDS);
+                else if (caster->FindNearestGameObject(GO_SPELLFOCUS_BLUE, 100.0f))
+                    caster->SummonGameObject(GO_NG_5_EXPLOSIVES_BLUE, caster->GetPositionX(), caster->GetPositionY(), caster->GetPositionZ(), caster->GetOrientation(), QuaternionData(), 300 * IN_MILLISECONDS);
+            }
+        }
+
+        void Register() override
+        {
+            AfterCast += SpellCastFn(spell_set_ng_5_charge_SpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_set_ng_5_charge_SpellScript();
+    }
+};
+
+class spell_remote_detonator : public SpellScriptLoader
+{
+public:
+    spell_remote_detonator() : SpellScriptLoader("spell_remote_detonator") { }
+
+    class spell_remote_detonator_SpellScript : public SpellScript
+    {
+        PrepareSpellScript(spell_remote_detonator_SpellScript);
+
+        void HandleAfterCast()
+        {
+            if (Unit* caster = GetCaster())
+            {
+                if (caster->FindNearestGameObject(GO_SPELLFOCUS_RED, 100.0f))
+                {
+                    if (GameObject* trap = caster->FindNearestGameObject(VENTURE_WAGON_1, 100.0f))
+                        trap->UseDoorOrButton();
+                }
+                else if (caster->FindNearestGameObject(GO_SPELLFOCUS_BLUE, 100.0f))
+                {
+                    if (GameObject* trap = caster->FindNearestGameObject(VENTURE_WAGON_2, 100.0f))
+                        trap->UseDoorOrButton();
+                }
+            }
+        }
+
+        void Register() override
+        {
+            AfterCast += SpellCastFn(spell_remote_detonator_SpellScript::HandleAfterCast);
+        }
+    };
+
+    SpellScript* GetSpellScript() const override
+    {
+        return new spell_remote_detonator_SpellScript();
+    }
+};
 
 void AddSC_stonetalon_mountains()
 {
     new npc_kaya_flathoof();
+    new spell_set_ng_5_charge();
+    new spell_remote_detonator();
 }
