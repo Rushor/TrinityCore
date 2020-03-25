@@ -340,21 +340,21 @@ namespace VMAP
 
     void VMapManager2::releaseModelInstance(const std::string &filename)
     {
-        //! Critical section, thread safe access to iLoadedModelFiles
-        std::lock_guard<std::mutex> lock(LoadedModelFilesLock);
-
-        ModelFileMap::iterator model = iLoadedModelFiles.find(filename);
-        if (model == iLoadedModelFiles.end())
-        {
-            VMAP_ERROR_LOG("misc", "VMapManager2: trying to unload non-loaded file '%s'", filename.c_str());
-            return;
-        }
-        if (model->second.decRefCount() == 0)
-        {
-            VMAP_DEBUG_LOG("maps", "VMapManager2: unloading file '%s'", filename.c_str());
-            delete model->second.getModel();
-            iLoadedModelFiles.erase(model);
-        }
+        ////! Critical section, thread safe access to iLoadedModelFiles
+        //std::lock_guard<std::mutex> lock(LoadedModelFilesLock);
+		//
+        //ModelFileMap::iterator model = iLoadedModelFiles.find(filename);
+        //if (model == iLoadedModelFiles.end())
+        //{
+        //    VMAP_ERROR_LOG("misc", "VMapManager2: trying to unload non-loaded file '%s'", filename.c_str());
+        //    return;
+        //}
+        //if (model->second.decRefCount() == 0)
+        //{
+        //    VMAP_DEBUG_LOG("maps", "VMapManager2: unloading file '%s'", filename.c_str());
+        //    delete model->second.getModel();
+        //    iLoadedModelFiles.erase(model);
+        //}
     }
 
     LoadResult VMapManager2::existsMap(char const* basePath, unsigned int mapId, int x, int y)
