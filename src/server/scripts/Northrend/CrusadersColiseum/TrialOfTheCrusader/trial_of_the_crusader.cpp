@@ -136,7 +136,8 @@ enum TrialEvents
     EVENT_EMOTE_KNEEL,
     EVENT_SUMMON_CHAMPIONS,
     EVENT_START_CHAMPIONS,
-    EVENT_START_TALK
+    EVENT_START_TALK,
+    EVENT_DELETE_PLATFORM
 };
 
 enum TocMenuIds
@@ -513,6 +514,7 @@ struct npc_tirion_toc : public ScriptedAI
                 me->GetMap()->SetZoneWeather(AREA_TRIAL_OF_THE_CRUSADER, WEATHER_STATE_LIGHT_SNOW, 0.5f);
                 _events.ScheduleEvent(EVENT_LICH_KING_SAY_CHALLENGE, 19s);
                 _events.ScheduleEvent(EVENT_SAY_ARTHAS, 26s);
+                _events.ScheduleEvent(EVENT_DELETE_PLATFORM, 56s);
                 break;
             case ACTION_LK_EVENT_FINISHED:
                 _events.ScheduleEvent(EVENT_LICH_KING_SAY_SOULS, 2s);
@@ -623,6 +625,10 @@ struct npc_tirion_toc : public ScriptedAI
                 case EVENT_START_CHAMPIONS:
                     if (Creature* factitonController = _instance->GetCreature(DATA_FACTION_CRUSADERS))
                         factitonController->AI()->SetData(1, NOT_STARTED); // will be changed to DoAction soon
+                    break;
+                case EVENT_DELETE_PLATFORM:
+                    if (GameObject* floor = me->FindNearestGameObject(GO_ARGENT_COLISEUM_FLOOR, 500.0f))
+                        floor->Delete();
                     break;
                 default:
                     break;
