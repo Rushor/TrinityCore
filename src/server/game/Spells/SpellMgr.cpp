@@ -3795,6 +3795,19 @@ void SpellMgr::LoadSpellInfoCorrections()
         spellInfo->Effects[EFFECT_0].BasePoints = 0;
     });
 
+    // Netherwing Drake will have 310 percent mount speed now
+    ApplySpellFix({
+        41513,
+        41514,
+        41515,
+        41516,
+        41517,
+        41518
+        }, [](SpellInfo* spellInfo)
+    {
+        spellInfo->Effects[EFFECT_1].BasePoints = 310;
+    });
+
     ApplySpellFix({
         64745, // Item - Death Knight T8 Tank 4P Bonus
         64936  // Item - Warrior T8 Protection 4P Bonus
