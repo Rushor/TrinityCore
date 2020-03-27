@@ -445,8 +445,6 @@ class boss_hodir : public CreatureScript
                     summons.DespawnAll();
                     scheduler.CancelAll();
                     instance->SetBossState(BOSS_HODIR, DONE);
-                    me->GetMap()->LoadGrid(1945.071f, -79.098f);
-
                     me->SetFaction(FACTION_FRIENDLY);
                     me->DespawnOrUnsummon(10000);
 
