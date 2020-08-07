@@ -614,6 +614,8 @@ bool Creature::UpdateEntry(uint32 entry, CreatureData const* data /*= nullptr*/,
         ApplySpellImmune(0, IMMUNITY_EFFECT, SPELL_EFFECT_ATTACK_ME, true);
     }
 
+    SetIgnoringCombat((cInfo->flags_extra & CREATURE_FLAG_EXTRA_NO_COMBAT) != 0);
+
     LoadTemplateRoot();
     InitializeMovementFlags();
 
@@ -1867,7 +1869,7 @@ bool Creature::CanStartAttack(Unit const* who, bool force) const
         if (!_IsTargetAcceptable(who))
             return false;
 
-        if (!force && (IsNeutralToAll() || !IsWithinDistInMap(who, GetAttackDistance(who) + m_CombatDistance)))
+        if (IsNeutralToAll() || !IsWithinDistInMap(who, GetAttackDistance(who) + m_CombatDistance))
             return false;
     }
 
